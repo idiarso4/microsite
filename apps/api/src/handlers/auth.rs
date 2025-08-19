@@ -1,7 +1,7 @@
 use axum::{extract::State, Json};
 use shared_types::{
     ApiResponse, LoginRequest, LoginResponse, RegisterTenantRequest,
-    ForgotPasswordRequest, ResetPasswordRequest
+    ForgotPasswordRequest, ResetPasswordRequest, RefreshTokenRequest
 };
 use validator::Validate;
 use std::sync::Arc;
@@ -99,20 +99,20 @@ pub async fn logout(
 
 /// Refresh access token
 pub async fn refresh(
-    State(_state): State<Arc<AppState>>,
+    State(state): State<Arc<AppState>>,
+    Json(request): Json<RefreshTokenRequest>,
 ) -> Json<ApiResponse<LoginResponse>> {
     info!("Token refresh attempt");
-    
-    // TODO: Implement token refresh
-    // 1. Extract refresh token from request
-    // 2. Validate refresh token
-    // 3. Check if token exists in Redis
-    // 4. Get user and tenant info
-    // 5. Generate new access token
-    // 6. Optionally rotate refresh token
-    // 7. Return new tokens
-    
-    Json(ApiResponse::<LoginResponse>::error_typed("Not implemented yet".to_string()))
+
+    if let Err(e) = request.validate() {
+        return Json(ApiResponse::<LoginResponse>::error_typed(format!("Invalid input: {}", e)));
+    }
+
+    let svc = crate::services::AuthAppService::new(&state.db_pool, &state.jwt_service, &state.password_service, &state.redis);
+    match svc.refresh(&request.refresh_token).await {
+        Ok(resp) => Json(ApiResponse::success(resp)),
+        Err(e) => Json(ApiResponse::<LoginResponse>::error_typed(format!("{}", e))),
+    }
 }
 
 /// Forgot password

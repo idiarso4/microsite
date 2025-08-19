@@ -131,14 +131,19 @@ impl<'a> AuthAppService<'a> {
         let refresh_token = self.jwt.generate_refresh_token();
         let expires_at = self.jwt.access_token_expires_at();
 
-        // Store refresh token in Redis with TTL
+        // Store refresh token in Redis with TTL (map token -> user_id,tenant_id)
         {
             use redis::AsyncCommands;
             let mut conn = self.redis.clone();
-            let key = format!("refresh:{}", user_id);
+            let key = format!("refresh:{}", refresh_token);
             let ttl = (self.jwt.refresh_token_expires_at() - Utc::now()).num_seconds();
+            let value = serde_json::json!({
+                "user_id": user_id,
+                "tenant_id": tenant_id
+            })
+            .to_string();
             let _: () = redis::pipe()
-                .cmd("SET").arg(&key).arg(&refresh_token).ignore()
+                .cmd("SET").arg(&key).arg(&value).ignore()
                 .cmd("EXPIRE").arg(&key).arg(ttl).ignore()
                 .query_async(&mut conn)
                 .await?;
@@ -164,6 +169,78 @@ impl<'a> AuthAppService<'a> {
         };
 
         Ok(LoginResponse { user, tenant, permissions, access_token, refresh_token, expires_at })
+    }
+
+    pub async fn refresh(&self, refresh_token: &str) -> Result<LoginResponse> {
+        // Lookup refresh token in Redis
+        use redis::AsyncCommands;
+        let mut conn = self.redis.clone();
+        let key = format!("refresh:{}", refresh_token);
+        let value: Option<String> = conn.get(&key).await?;
+        let value = match value {
+            Some(v) => v,
+            None => anyhow::bail!("TOKEN_INVALID"),
+        };
+
+        let v: serde_json::Value = serde_json::from_str(&value)?;
+        let user_id: uuid::Uuid = serde_json::from_value(v.get("user_id").cloned().ok_or_else(|| anyhow::anyhow!("MALFORMED_TOKEN"))?)?;
+        let tenant_id: uuid::Uuid = serde_json::from_value(v.get("tenant_id").cloned().ok_or_else(|| anyhow::anyhow!("MALFORMED_TOKEN"))?)?;
+
+        // Fetch user and tenant minimal info
+        let row = sqlx::query(
+            r#"SELECT u.email, u.first_name, u.last_name, u.is_active,
+                       t.name as tenant_name, t.slug as tenant_slug, t.plan as tenant_plan, t.settings as tenant_settings, t.is_active as tenant_active
+                 FROM users u
+                 JOIN tenant_memberships tm ON tm.user_id = u.id AND tm.tenant_id = $2 AND tm.is_active = true
+                 JOIN tenants t ON t.id = tm.tenant_id
+                 WHERE u.id = $1 AND u.is_active = true AND t.is_active = true
+                 LIMIT 1"#,
+        )
+        .bind(user_id)
+        .bind(tenant_id)
+        .fetch_one(self.db)
+        .await?;
+
+        // Permissions placeholder
+        let permissions: Vec<String> = vec![];
+
+        // Rotate tokens: delete old refresh key and set new one
+        let access_token = self
+            .jwt
+            .generate_access_token(user_id, tenant_id, row.get::<String, _>("email"), vec![], permissions.clone())?;
+        let new_refresh_token = self.jwt.generate_refresh_token();
+        let expires_at = self.jwt.access_token_expires_at();
+
+        let new_key = format!("refresh:{}", new_refresh_token);
+        let ttl = (self.jwt.refresh_token_expires_at() - Utc::now()).num_seconds();
+        let store_value = serde_json::json!({ "user_id": user_id, "tenant_id": tenant_id }).to_string();
+        let _: () = redis::pipe()
+            .cmd("DEL").arg(&key).ignore()
+            .cmd("SET").arg(&new_key).arg(&store_value).ignore()
+            .cmd("EXPIRE").arg(&new_key).arg(ttl).ignore()
+            .query_async(&mut conn)
+            .await?;
+
+        // Compose response
+        let user = User {
+            base: shared_types::BaseEntity { id: user_id, created_at: Utc::now(), updated_at: Utc::now() },
+            email: row.get("email"),
+            first_name: row.try_get::<Option<String>, _>("first_name").unwrap_or(None),
+            last_name: row.try_get::<Option<String>, _>("last_name").unwrap_or(None),
+            is_active: row.try_get::<bool, _>("is_active").unwrap_or(true),
+            email_verified_at: None,
+            last_login_at: None,
+        };
+        let tenant = Tenant {
+            base: shared_types::BaseEntity { id: tenant_id, created_at: Utc::now(), updated_at: Utc::now() },
+            name: row.try_get::<String, _>("tenant_name").unwrap_or_default(),
+            slug: row.try_get::<String, _>("tenant_slug").unwrap_or_default(),
+            plan: row.try_get::<String, _>("tenant_plan").unwrap_or_else(|_| "basic".to_string()),
+            settings: row.try_get::<serde_json::Value, _>("tenant_settings").unwrap_or(serde_json::json!({})),
+            is_active: row.try_get::<bool, _>("tenant_active").unwrap_or(true),
+        };
+
+        Ok(LoginResponse { user, tenant, permissions, access_token, refresh_token: new_refresh_token, expires_at })
     }
 }
 

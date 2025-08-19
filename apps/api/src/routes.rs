@@ -33,6 +33,7 @@ pub fn tenant_routes() -> Router<Arc<AppState>> {
         .route("/current", axum::routing::put(handlers::tenant::update_current_tenant))
         .route("/members", get(handlers::tenant::get_members))
         .route("/invite", axum::routing::post(handlers::tenant::invite_user))
+
 }
 
 pub fn user_routes() -> Router<Arc<AppState>> {
@@ -40,6 +41,7 @@ pub fn user_routes() -> Router<Arc<AppState>> {
         .route("/profile", get(handlers::user::get_profile))
         .route("/profile", axum::routing::put(handlers::user::update_profile))
         .route("/change-password", axum::routing::post(handlers::user::change_password))
+
 }
 
 pub fn crm_routes() -> Router<Arc<AppState>> {
@@ -54,6 +56,7 @@ pub fn crm_routes() -> Router<Arc<AppState>> {
         .route("/contacts/:id", get(handlers::crm::get_contact))
         .route("/contacts/:id", axum::routing::put(handlers::crm::update_contact))
         .route("/contacts/:id", axum::routing::delete(handlers::crm::delete_contact))
+
 }
 
 pub fn inventory_routes() -> Router<Arc<AppState>> {
@@ -67,6 +70,7 @@ pub fn inventory_routes() -> Router<Arc<AppState>> {
         .route("/warehouses", axum::routing::post(handlers::inventory::create_warehouse))
         .route("/stock", get(handlers::inventory::list_stock))
         .route("/stock/movements", get(handlers::inventory::list_stock_movements))
+
 }
 
 pub fn procurement_routes() -> Router<Arc<AppState>> {
@@ -75,6 +79,7 @@ pub fn procurement_routes() -> Router<Arc<AppState>> {
         .route("/vendors", axum::routing::post(handlers::procurement::create_vendor))
         .route("/purchase-orders", get(handlers::procurement::list_purchase_orders))
         .route("/purchase-orders", axum::routing::post(handlers::procurement::create_purchase_order))
+
 }
 
 pub fn accounting_routes() -> Router<Arc<AppState>> {
@@ -83,6 +88,7 @@ pub fn accounting_routes() -> Router<Arc<AppState>> {
         .route("/accounts", axum::routing::post(handlers::accounting::create_account))
         .route("/journals", get(handlers::accounting::list_journals))
         .route("/journals", axum::routing::post(handlers::accounting::create_journal))
+
 }
 
 pub fn hrm_routes() -> Router<Arc<AppState>> {
@@ -91,6 +97,7 @@ pub fn hrm_routes() -> Router<Arc<AppState>> {
         .route("/employees", axum::routing::post(handlers::hrm::create_employee))
         .route("/leaves", get(handlers::hrm::list_leaves))
         .route("/leaves", axum::routing::post(handlers::hrm::create_leave))
+
 }
 
 pub fn docs_routes() -> Router<Arc<AppState>> {
