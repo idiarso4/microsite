@@ -1,7 +1,6 @@
 use std::time::Duration;
 
-use http::{Request, StatusCode};
-use hyper::{body::to_bytes, Body, Client};
+use reqwest::{Client, StatusCode};
 use serde_json::json;
 
 // How to run:
@@ -16,11 +15,14 @@ async fn base_url() -> String {
     std::env::var("BASE_URL").unwrap_or_else(|_| DEFAULT_BASE_URL.to_string())
 }
 
-async fn http_client() -> Client<hyper::client::HttpConnector> {
-    Client::new()
+async fn http_client() -> Client {
+    Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .unwrap()
 }
 
-async fn get_token_via_env_or_login(client: &Client<hyper::client::HttpConnector>, base: &str) -> Option<String> {
+async fn get_token_via_env_or_login(client: &Client, base: &str) -> Option<String> {
     if let Ok(token) = std::env::var("TEST_BEARER_TOKEN") {
         return Some(token);
     }
@@ -29,18 +31,14 @@ async fn get_token_via_env_or_login(client: &Client<hyper::client::HttpConnector
     let password = std::env::var("TEST_PASSWORD").ok()?;
 
     let req_body = json!({ "email": username, "password": password });
-    let req = Request::post(format!("{}/api/v1/auth/login", base))
-        .header("content-type", "application/json")
-        .body(Body::from(req_body.to_string()))
-        .unwrap();
+    let resp = client
+        .post(format!("{}/api/v1/auth/login", base))
+        .json(&req_body)
+        .send().await.ok()?;
 
-    let resp = client.request(req).await.ok()?;
     if resp.status() != StatusCode::OK { return None; }
-    let bytes = to_bytes(resp).await.ok()?;
-    let v: serde_json::Value = serde_json::from_slice(&bytes).ok()?;
-    let token = v
-        .get("data")?.get("access_token")?
-        .as_str()?.to_string();
+    let v: serde_json::Value = resp.json().await.ok()?;
+    let token = v.get("data")?.get("access_token")?.as_str()?.to_string();
     Some(token)
 }
 
@@ -58,15 +56,13 @@ async fn test_companies_list_smoke() {
     tokio::time::sleep(Duration::from_millis(100)).await;
 
     let url = format!("{}/api/v1/crm/companies?page=1&per_page=5", base);
-    let req = Request::get(url)
-        .header("authorization", format!("Bearer {}", token))
-        .body(Body::empty())
-        .unwrap();
+    let resp = client
+        .get(url)
+        .bearer_auth(&token)
+        .send().await.expect("request failed");
 
-    let resp = client.request(req).await.expect("request failed");
     assert_eq!(resp.status(), StatusCode::OK);
-    let bytes = to_bytes(resp).await.expect("read body");
-    let v: serde_json::Value = serde_json::from_slice(&bytes).expect("parse json");
+    let v: serde_json::Value = resp.json().await.expect("parse json");
 
     assert_eq!(v.get("success").and_then(|b| b.as_bool()), Some(true));
     assert!(v.get("data").is_some(), "missing data field");
@@ -84,42 +80,37 @@ async fn test_companies_crud_flow() {
 
     // create
     let body = json!({ "name": "Acme Inc.", "website": "https://acme.example" });
-    let req = Request::post(format!("{}/api/v1/crm/companies", base))
-        .header("authorization", format!("Bearer {}", token))
-        .header("content-type", "application/json")
-        .body(Body::from(body.to_string()))
-        .unwrap();
-    let resp = client.request(req).await.expect("create failed");
+    let resp = client
+        .post(format!("{}/api/v1/crm/companies", base))
+        .bearer_auth(&token)
+        .json(&body)
+        .send().await.expect("create failed");
     assert_eq!(resp.status(), StatusCode::OK);
-    let bytes = to_bytes(resp).await.expect("read body");
-    let v: serde_json::Value = serde_json::from_slice(&bytes).expect("parse json");
+    let v: serde_json::Value = resp.json().await.expect("parse json");
     assert_eq!(v.get("success").and_then(|b| b.as_bool()), Some(true));
     let id = v.get("data").and_then(|d| d.get("id")).and_then(|s| s.as_str()).expect("company id").to_string();
 
     // get
-    let req = Request::get(format!("{}/api/v1/crm/companies/{}", base, id))
-        .header("authorization", format!("Bearer {}", token))
-        .body(Body::empty())
-        .unwrap();
-    let resp = client.request(req).await.expect("get failed");
+    let resp = client
+        .get(format!("{}/api/v1/crm/companies/{}", base, id))
+        .bearer_auth(&token)
+        .send().await.expect("get failed");
     assert_eq!(resp.status(), StatusCode::OK);
 
     // update
     let body = json!({ "name": "Acme Updated" });
-    let req = Request::put(format!("{}/api/v1/crm/companies/{}", base, id))
-        .header("authorization", format!("Bearer {}", token))
-        .header("content-type", "application/json")
-        .body(Body::from(body.to_string()))
-        .unwrap();
-    let resp = client.request(req).await.expect("update failed");
+    let resp = client
+        .put(format!("{}/api/v1/crm/companies/{}", base, id))
+        .bearer_auth(&token)
+        .json(&body)
+        .send().await.expect("update failed");
     assert_eq!(resp.status(), StatusCode::OK);
 
     // delete
-    let req = Request::delete(format!("{}/api/v1/crm/companies/{}", base, id))
-        .header("authorization", format!("Bearer {}", token))
-        .body(Body::empty())
-        .unwrap();
-    let resp = client.request(req).await.expect("delete failed");
+    let resp = client
+        .delete(format!("{}/api/v1/crm/companies/{}", base, id))
+        .bearer_auth(&token)
+        .send().await.expect("delete failed");
     assert_eq!(resp.status(), StatusCode::OK);
 }
 
@@ -135,42 +126,37 @@ async fn test_contacts_crud_flow() {
 
     // create
     let body = json!({ "first_name": "John", "last_name": "Doe", "email": "john.doe@example.com" });
-    let req = Request::post(format!("{}/api/v1/crm/contacts", base))
-        .header("authorization", format!("Bearer {}", token))
-        .header("content-type", "application/json")
-        .body(Body::from(body.to_string()))
-        .unwrap();
-    let resp = client.request(req).await.expect("create failed");
+    let resp = client
+        .post(format!("{}/api/v1/crm/contacts", base))
+        .bearer_auth(&token)
+        .json(&body)
+        .send().await.expect("create failed");
     assert_eq!(resp.status(), StatusCode::OK);
-    let bytes = to_bytes(resp).await.expect("read body");
-    let v: serde_json::Value = serde_json::from_slice(&bytes).expect("parse json");
+    let v: serde_json::Value = resp.json().await.expect("parse json");
     assert_eq!(v.get("success").and_then(|b| b.as_bool()), Some(true));
     let id = v.get("data").and_then(|d| d.get("id")).and_then(|s| s.as_str()).expect("contact id").to_string();
 
     // get
-    let req = Request::get(format!("{}/api/v1/crm/contacts/{}", base, id))
-        .header("authorization", format!("Bearer {}", token))
-        .body(Body::empty())
-        .unwrap();
-    let resp = client.request(req).await.expect("get failed");
+    let resp = client
+        .get(format!("{}/api/v1/crm/contacts/{}", base, id))
+        .bearer_auth(&token)
+        .send().await.expect("get failed");
     assert_eq!(resp.status(), StatusCode::OK);
 
     // update
     let body = json!({ "position": "Manager" });
-    let req = Request::put(format!("{}/api/v1/crm/contacts/{}", base, id))
-        .header("authorization", format!("Bearer {}", token))
-        .header("content-type", "application/json")
-        .body(Body::from(body.to_string()))
-        .unwrap();
-    let resp = client.request(req).await.expect("update failed");
+    let resp = client
+        .put(format!("{}/api/v1/crm/contacts/{}", base, id))
+        .bearer_auth(&token)
+        .json(&body)
+        .send().await.expect("update failed");
     assert_eq!(resp.status(), StatusCode::OK);
 
     // delete
-    let req = Request::delete(format!("{}/api/v1/crm/contacts/{}", base, id))
-        .header("authorization", format!("Bearer {}", token))
-        .body(Body::empty())
-        .unwrap();
-    let resp = client.request(req).await.expect("delete failed");
+    let resp = client
+        .delete(format!("{}/api/v1/crm/contacts/{}", base, id))
+        .bearer_auth(&token)
+        .send().await.expect("delete failed");
     assert_eq!(resp.status(), StatusCode::OK);
 }
 
