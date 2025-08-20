@@ -5,6 +5,7 @@ use tracing::info;
 
 use crate::{state::AppState, middleware::{auth_middleware::CurrentUser, db_conn::DbConn}};
 use sqlx::Row;
+use utoipa::ToSchema;
 
 use validator::Validate;
 // Company handlers
@@ -31,7 +32,7 @@ pub struct ListCompaniesQuery {
         ("sort_by" = Option<String>, Query, description = "name|created_at|updated_at"),
         ("sort_order" = Option<String>, Query, description = "asc|desc"),
     ),
-    responses((status = 200, description = "List companies", body = ApiResponse<()>)),
+    responses((status = 200, description = "List companies", body = ApiResponse<shared_types::PaginatedResponse<shared_types::Company>>)),
     tag = "crm"
 )]
 pub async fn list_companies(
@@ -39,7 +40,7 @@ pub async fn list_companies(
     current: Extension<CurrentUser>,
     DbConn(mut conn): DbConn,
     Query(q): Query<ListCompaniesQuery>,
-) -> Json<ApiResponse<shared_types::PaginatedResponse<serde_json::Value>>> {
+) -> Json<ApiResponse<shared_types::PaginatedResponse<shared_types::Company>>> {
     info!("List companies");
 
     if let Err(e) = q.validate() {
@@ -86,7 +87,7 @@ pub async fn list_companies(
     };
 
     // Count total + Fetch data with proper bind numbering depending on search
-    let (total_count, rows): (i64, Vec<serde_json::Value>) = if let Some(search) = &q.search {
+    let (total_count, rows): (i64, Vec<shared_types::Company>) = if let Some(search) = &q.search {
         let pattern = format!("%{}%", search);
         where_parts.push("(name ILIKE $1 OR email ILIKE $1 OR website ILIKE $1)");
         let where_clause = format!("WHERE {}", where_parts.join(" AND "));
@@ -114,19 +115,19 @@ pub async fn list_companies(
             .await
             .map(|recs| {
                 recs.into_iter().map(|row| {
-                    serde_json::json!({
-                        "id": row.get::<uuid::Uuid, _>("id"),
-                        "tenant_id": row.get::<uuid::Uuid, _>("tenant_id"),
-                        "name": row.get::<String, _>("name"),
-                        "website": row.try_get::<Option<String>, _>("website").unwrap_or(None),
-                        "email": row.try_get::<Option<String>, _>("email").unwrap_or(None),
-                        "phone": row.try_get::<Option<String>, _>("phone").unwrap_or(None),
-                        "address": row.try_get::<serde_json::Value, _>("address").unwrap_or(serde_json::json!({})),
-                        "tags": row.try_get::<Vec<String>, _>("tags").unwrap_or_default(),
-                        "is_active": row.get::<bool, _>("is_active"),
-                        "created_at": row.get::<chrono::DateTime<chrono::Utc>, _>("created_at"),
-                        "updated_at": row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
-                    })
+                    shared_types::Company {
+                        id: row.get("id"),
+                        tenant_id: row.get("tenant_id"),
+                        name: row.get("name"),
+                        website: row.try_get("website").unwrap_or(None),
+                        email: row.try_get("email").unwrap_or(None),
+                        phone: row.try_get("phone").unwrap_or(None),
+                        address: row.try_get("address").unwrap_or(serde_json::json!({})),
+                        tags: row.try_get("tags").unwrap_or_default(),
+                        is_active: row.get("is_active"),
+                        created_at: row.get("created_at"),
+                        updated_at: row.get("updated_at"),
+                    }
                 }).collect::<Vec<_>>()
             })
             .unwrap_or_default();
@@ -155,19 +156,19 @@ pub async fn list_companies(
             .await
             .map(|recs| {
                 recs.into_iter().map(|row| {
-                    serde_json::json!({
-                        "id": row.get::<uuid::Uuid, _>("id"),
-                        "tenant_id": row.get::<uuid::Uuid, _>("tenant_id"),
-                        "name": row.get::<String, _>("name"),
-                        "website": row.try_get::<Option<String>, _>("website").unwrap_or(None),
-                        "email": row.try_get::<Option<String>, _>("email").unwrap_or(None),
-                        "phone": row.try_get::<Option<String>, _>("phone").unwrap_or(None),
-                        "address": row.try_get::<serde_json::Value, _>("address").unwrap_or(serde_json::json!({})),
-                        "tags": row.try_get::<Vec<String>, _>("tags").unwrap_or_default(),
-                        "is_active": row.get::<bool, _>("is_active"),
-                        "created_at": row.get::<chrono::DateTime<chrono::Utc>, _>("created_at"),
-                        "updated_at": row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
-                    })
+                    shared_types::Company {
+                        id: row.get("id"),
+                        tenant_id: row.get("tenant_id"),
+                        name: row.get("name"),
+                        website: row.try_get("website").unwrap_or(None),
+                        email: row.try_get("email").unwrap_or(None),
+                        phone: row.try_get("phone").unwrap_or(None),
+                        address: row.try_get("address").unwrap_or(serde_json::json!({})),
+                        tags: row.try_get("tags").unwrap_or_default(),
+                        is_active: row.get("is_active"),
+                        created_at: row.get("created_at"),
+                        updated_at: row.get("updated_at"),
+                    }
                 }).collect::<Vec<_>>()
             })
             .unwrap_or_default();
@@ -190,7 +191,7 @@ pub async fn list_companies(
     Json(ApiResponse::success(resp))
 }
 
-#[derive(serde::Deserialize, Validate, Debug)]
+#[derive(serde::Deserialize, Validate, Debug, ToSchema)]
 pub struct CreateCompanyRequest {
     #[validate(length(min = 1, max = 255))]
     pub name: String,
@@ -208,7 +209,7 @@ pub struct CreateCompanyRequest {
     post,
     path = "/api/v1/crm/companies",
     request_body = CreateCompanyRequest,
-    responses((status = 201, description = "Company created", body = ApiResponse<serde_json::Value>)),
+    responses((status = 201, description = "Company created", body = ApiResponse<shared_types::Company>)),
     tag = "crm"
 )]
 pub async fn create_company(
@@ -216,7 +217,7 @@ pub async fn create_company(
     current: Extension<CurrentUser>,
     DbConn(mut conn): DbConn,
     Json(req): Json<CreateCompanyRequest>,
-) -> Json<ApiResponse<serde_json::Value>> {
+) -> Json<ApiResponse<shared_types::Company>> {
     info!("Create company");
 
     if let Err(e) = req.validate() {
@@ -249,19 +250,19 @@ pub async fn create_company(
 
     match row {
         Ok(row) => {
-            let json = serde_json::json!({
-                "id": row.get::<uuid::Uuid, _>("id"),
-                "tenant_id": row.get::<uuid::Uuid, _>("tenant_id"),
-                "name": row.get::<String, _>("name"),
-                "website": row.try_get::<Option<String>, _>("website").unwrap_or(None),
-                "email": row.try_get::<Option<String>, _>("email").unwrap_or(None),
-                "phone": row.try_get::<Option<String>, _>("phone").unwrap_or(None),
-                "address": row.try_get::<serde_json::Value, _>("address").unwrap_or(serde_json::json!({})),
-                "tags": row.try_get::<Vec<String>, _>("tags").unwrap_or_default(),
-                "is_active": row.get::<bool, _>("is_active"),
-                "created_at": row.get::<chrono::DateTime<chrono::Utc>, _>("created_at"),
-                "updated_at": row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
-            });
+            let json = shared_types::Company {
+                id: row.get("id"),
+                tenant_id: row.get("tenant_id"),
+                name: row.get("name"),
+                website: row.try_get("website").unwrap_or(None),
+                email: row.try_get("email").unwrap_or(None),
+                phone: row.try_get("phone").unwrap_or(None),
+                address: row.try_get("address").unwrap_or(serde_json::json!({})),
+                tags: row.try_get("tags").unwrap_or_default(),
+                is_active: row.get("is_active"),
+                created_at: row.get("created_at"),
+                updated_at: row.get("updated_at"),
+            };
             Json(ApiResponse::success(json))
         }
         Err(e) => Json(ApiResponse::error_typed(format!("{}", e)))
@@ -272,7 +273,7 @@ pub async fn create_company(
     get,
     path = "/api/v1/crm/companies/{id}",
     params(("id" = uuid::Uuid, Path, description = "Company ID")),
-    responses((status = 200, description = "Company detail", body = ApiResponse<()>)),
+    responses((status = 200, description = "Company detail", body = ApiResponse<shared_types::Company>)),
     tag = "crm"
 )]
 pub async fn get_company(
@@ -280,7 +281,7 @@ pub async fn get_company(
     current: Extension<CurrentUser>,
     DbConn(mut conn): DbConn,
     Path(id): Path<uuid::Uuid>,
-) -> Json<ApiResponse<serde_json::Value>> {
+) -> Json<ApiResponse<shared_types::Company>> {
     info!("Get company {}", id);
     let _ = sqlx::query("SELECT set_config('app.current_tenant_id', $1, true)")
         .bind(current.tenant_id.to_string())
@@ -297,19 +298,19 @@ pub async fn get_company(
 
     match row {
         Ok(Some(row)) => {
-            let json = serde_json::json!({
-                "id": row.get::<uuid::Uuid, _>("id"),
-                "tenant_id": row.get::<uuid::Uuid, _>("tenant_id"),
-                "name": row.get::<String, _>("name"),
-                "website": row.try_get::<Option<String>, _>("website").unwrap_or(None),
-                "email": row.try_get::<Option<String>, _>("email").unwrap_or(None),
-                "phone": row.try_get::<Option<String>, _>("phone").unwrap_or(None),
-                "address": row.try_get::<serde_json::Value, _>("address").unwrap_or(serde_json::json!({})),
-                "tags": row.try_get::<Vec<String>, _>("tags").unwrap_or_default(),
-                "is_active": row.get::<bool, _>("is_active"),
-                "created_at": row.get::<chrono::DateTime<chrono::Utc>, _>("created_at"),
-                "updated_at": row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
-            });
+            let json = shared_types::Company {
+                id: row.get("id"),
+                tenant_id: row.get("tenant_id"),
+                name: row.get("name"),
+                website: row.try_get("website").unwrap_or(None),
+                email: row.try_get("email").unwrap_or(None),
+                phone: row.try_get("phone").unwrap_or(None),
+                address: row.try_get("address").unwrap_or(serde_json::json!({})),
+                tags: row.try_get("tags").unwrap_or_default(),
+                is_active: row.get("is_active"),
+                created_at: row.get("created_at"),
+                updated_at: row.get("updated_at"),
+            };
             Json(ApiResponse::success(json))
         }
         Ok(None) => Json(ApiResponse::error_typed("Company not found".to_string())),
@@ -317,7 +318,7 @@ pub async fn get_company(
     }
 }
 
-#[derive(serde::Deserialize, Validate, Debug)]
+#[derive(serde::Deserialize, Validate, Debug, ToSchema)]
 pub struct UpdateCompanyRequest {
     #[validate(length(min = 1, max = 255))]
     pub name: Option<String>,
@@ -337,7 +338,7 @@ pub struct UpdateCompanyRequest {
     path = "/api/v1/crm/companies/{id}",
     params(("id" = uuid::Uuid, Path, description = "Company ID")),
     request_body = UpdateCompanyRequest,
-    responses((status = 200, description = "Company updated", body = ApiResponse<()>)),
+    responses((status = 200, description = "Company updated", body = ApiResponse<shared_types::Company>)),
     tag = "crm"
 )]
 pub async fn update_company(
@@ -346,7 +347,7 @@ pub async fn update_company(
     DbConn(mut conn): DbConn,
     Path(id): Path<uuid::Uuid>,
     Json(req): Json<UpdateCompanyRequest>,
-) -> Json<ApiResponse<serde_json::Value>> {
+) -> Json<ApiResponse<shared_types::Company>> {
     info!("Update company {}", id);
     if let Err(e) = req.validate() {
         return Json(ApiResponse::error_typed(format!("Invalid input: {}", e)));
@@ -383,19 +384,19 @@ pub async fn update_company(
 
     match row {
         Ok(row) => {
-            let json = serde_json::json!({
-                "id": row.get::<uuid::Uuid, _>("id"),
-                "tenant_id": row.get::<uuid::Uuid, _>("tenant_id"),
-                "name": row.get::<String, _>("name"),
-                "website": row.try_get::<Option<String>, _>("website").unwrap_or(None),
-                "email": row.try_get::<Option<String>, _>("email").unwrap_or(None),
-                "phone": row.try_get::<Option<String>, _>("phone").unwrap_or(None),
-                "address": row.try_get::<serde_json::Value, _>("address").unwrap_or(serde_json::json!({})),
-                "tags": row.try_get::<Vec<String>, _>("tags").unwrap_or_default(),
-                "is_active": row.get::<bool, _>("is_active"),
-                "created_at": row.get::<chrono::DateTime<chrono::Utc>, _>("created_at"),
-                "updated_at": row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
-            });
+            let json = shared_types::Company {
+                id: row.get("id"),
+                tenant_id: row.get("tenant_id"),
+                name: row.get("name"),
+                website: row.try_get("website").unwrap_or(None),
+                email: row.try_get("email").unwrap_or(None),
+                phone: row.try_get("phone").unwrap_or(None),
+                address: row.try_get("address").unwrap_or(serde_json::json!({})),
+                tags: row.try_get("tags").unwrap_or_default(),
+                is_active: row.get("is_active"),
+                created_at: row.get("created_at"),
+                updated_at: row.get("updated_at"),
+            };
             Json(ApiResponse::success(json))
         }
         Err(e) => Json(ApiResponse::error_typed(format!("{}", e)))
@@ -461,7 +462,7 @@ pub struct ListContactsQuery {
         ("sort_by" = Option<String>, Query, description = "first_name|last_name|created_at|updated_at"),
         ("sort_order" = Option<String>, Query, description = "asc|desc"),
     ),
-    responses((status = 200, description = "List contacts", body = ApiResponse<shared_types::PaginatedResponse<serde_json::Value>>)),
+    responses((status = 200, description = "List contacts", body = ApiResponse<shared_types::PaginatedResponse<shared_types::Contact>>)),
     tag = "crm"
 )]
 pub async fn list_contacts(
@@ -469,7 +470,7 @@ pub async fn list_contacts(
     current: Extension<CurrentUser>,
     DbConn(mut conn): DbConn,
     Query(q): Query<ListContactsQuery>,
-) -> Json<ApiResponse<shared_types::PaginatedResponse<serde_json::Value>>> {
+) -> Json<ApiResponse<shared_types::PaginatedResponse<shared_types::Contact>>> {
     info!("List contacts");
 
     if let Err(e) = q.validate() {
@@ -539,25 +540,25 @@ pub async fn list_contacts(
         sqlx::query(&base_sql).bind(per_page as i64).bind(offset)
     };
 
-    let rows: Vec<serde_json::Value> = query
+    let rows: Vec<shared_types::Contact> = query
         .fetch_all(&mut *conn)
         .await
         .map(|recs| {
             recs.into_iter().map(|row| {
-                serde_json::json!({
-                    "id": row.get::<uuid::Uuid, _>("id"),
-                    "tenant_id": row.get::<uuid::Uuid, _>("tenant_id"),
-                    "company_id": row.try_get::<Option<uuid::Uuid>, _>("company_id").ok(),
-                    "first_name": row.get::<String, _>("first_name"),
-                    "last_name": row.get::<String, _>("last_name"),
-                    "email": row.try_get::<Option<String>, _>("email").unwrap_or(None),
-                    "phone": row.try_get::<Option<String>, _>("phone").unwrap_or(None),
-                    "position": row.try_get::<Option<String>, _>("position").unwrap_or(None),
-                    "notes": row.try_get::<Option<String>, _>("notes").unwrap_or(None),
-                    "is_active": row.get::<bool, _>("is_active"),
-                    "created_at": row.get::<chrono::DateTime<chrono::Utc>, _>("created_at"),
-                    "updated_at": row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
-                })
+                shared_types::Contact {
+                    id: row.get("id"),
+                    tenant_id: row.get("tenant_id"),
+                    company_id: row.try_get("company_id").ok(),
+                    first_name: row.get("first_name"),
+                    last_name: row.get("last_name"),
+                    email: row.try_get("email").unwrap_or(None),
+                    phone: row.try_get("phone").unwrap_or(None),
+                    position: row.try_get("position").unwrap_or(None),
+                    notes: row.try_get("notes").unwrap_or(None),
+                    is_active: row.get("is_active"),
+                    created_at: row.get("created_at"),
+                    updated_at: row.get("updated_at"),
+                }
             }).collect::<Vec<_>>()
         })
         .unwrap_or_default();
@@ -576,7 +577,7 @@ pub async fn list_contacts(
     Json(ApiResponse::success(resp))
 }
 
-#[derive(serde::Deserialize, Validate, Debug)]
+#[derive(serde::Deserialize, Validate, Debug, ToSchema)]
 pub struct CreateContactRequest {
     #[validate(length(min = 1, max = 100))]
     pub first_name: String,
@@ -596,7 +597,7 @@ pub struct CreateContactRequest {
     post,
     path = "/api/v1/crm/contacts",
     request_body = CreateContactRequest,
-    responses((status = 201, description = "Contact created", body = ApiResponse<serde_json::Value>)),
+    responses((status = 201, description = "Contact created", body = ApiResponse<shared_types::Contact>)),
     tag = "crm"
 )]
 pub async fn create_contact(
@@ -604,7 +605,7 @@ pub async fn create_contact(
     current: Extension<CurrentUser>,
     DbConn(mut conn): DbConn,
     Json(req): Json<CreateContactRequest>,
-) -> Json<ApiResponse<serde_json::Value>> {
+) -> Json<ApiResponse<shared_types::Contact>> {
     info!("Create contact");
 
     if let Err(e) = req.validate() {
@@ -634,20 +635,20 @@ pub async fn create_contact(
 
     match row {
         Ok(row) => {
-            let json = serde_json::json!({
-                "id": row.get::<uuid::Uuid, _>("id"),
-                "tenant_id": row.get::<uuid::Uuid, _>("tenant_id"),
-                "company_id": row.try_get::<Option<uuid::Uuid>, _>("company_id").ok(),
-                "first_name": row.get::<String, _>("first_name"),
-                "last_name": row.get::<String, _>("last_name"),
-                "email": row.try_get::<Option<String>, _>("email").unwrap_or(None),
-                "phone": row.try_get::<Option<String>, _>("phone").unwrap_or(None),
-                "position": row.try_get::<Option<String>, _>("position").unwrap_or(None),
-                "notes": row.try_get::<Option<String>, _>("notes").unwrap_or(None),
-                "is_active": row.get::<bool, _>("is_active"),
-                "created_at": row.get::<chrono::DateTime<chrono::Utc>, _>("created_at"),
-                "updated_at": row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
-            });
+            let json = shared_types::Contact {
+                id: row.get("id"),
+                tenant_id: row.get("tenant_id"),
+                company_id: row.try_get("company_id").ok(),
+                first_name: row.get("first_name"),
+                last_name: row.get("last_name"),
+                email: row.try_get("email").unwrap_or(None),
+                phone: row.try_get("phone").unwrap_or(None),
+                position: row.try_get("position").unwrap_or(None),
+                notes: row.try_get("notes").unwrap_or(None),
+                is_active: row.get("is_active"),
+                created_at: row.get("created_at"),
+                updated_at: row.get("updated_at"),
+            };
             Json(ApiResponse::success(json))
         }
         Err(e) => Json(ApiResponse::error_typed(format!("{}", e)))
@@ -658,7 +659,7 @@ pub async fn create_contact(
     get,
     path = "/api/v1/crm/contacts/{id}",
     params(("id" = uuid::Uuid, Path, description = "Contact ID")),
-    responses((status = 200, description = "Contact detail", body = ApiResponse<()>)),
+    responses((status = 200, description = "Contact detail", body = ApiResponse<shared_types::Contact>)),
     tag = "crm"
 )]
 pub async fn get_contact(
@@ -666,7 +667,7 @@ pub async fn get_contact(
     current: Extension<CurrentUser>,
     DbConn(mut conn): DbConn,
     Path(id): Path<uuid::Uuid>,
-) -> Json<ApiResponse<serde_json::Value>> {
+) -> Json<ApiResponse<shared_types::Contact>> {
     info!("Get contact {}", id);
     let _ = sqlx::query("SELECT set_config('app.current_tenant_id', $1, true)")
         .bind(current.tenant_id.to_string())
@@ -683,20 +684,20 @@ pub async fn get_contact(
 
     match row {
         Ok(Some(row)) => {
-            let json = serde_json::json!({
-                "id": row.get::<uuid::Uuid, _>("id"),
-                "tenant_id": row.get::<uuid::Uuid, _>("tenant_id"),
-                "company_id": row.try_get::<Option<uuid::Uuid>, _>("company_id").ok(),
-                "first_name": row.get::<String, _>("first_name"),
-                "last_name": row.get::<String, _>("last_name"),
-                "email": row.try_get::<Option<String>, _>("email").unwrap_or(None),
-                "phone": row.try_get::<Option<String>, _>("phone").unwrap_or(None),
-                "position": row.try_get::<Option<String>, _>("position").unwrap_or(None),
-                "notes": row.try_get::<Option<String>, _>("notes").unwrap_or(None),
-                "is_active": row.get::<bool, _>("is_active"),
-                "created_at": row.get::<chrono::DateTime<chrono::Utc>, _>("created_at"),
-                "updated_at": row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
-            });
+            let json = shared_types::Contact {
+                id: row.get("id"),
+                tenant_id: row.get("tenant_id"),
+                company_id: row.try_get("company_id").ok(),
+                first_name: row.get("first_name"),
+                last_name: row.get("last_name"),
+                email: row.try_get("email").unwrap_or(None),
+                phone: row.try_get("phone").unwrap_or(None),
+                position: row.try_get("position").unwrap_or(None),
+                notes: row.try_get("notes").unwrap_or(None),
+                is_active: row.get("is_active"),
+                created_at: row.get("created_at"),
+                updated_at: row.get("updated_at"),
+            };
             Json(ApiResponse::success(json))
         }
         Ok(None) => Json(ApiResponse::error_typed("Contact not found".to_string())),
@@ -704,7 +705,7 @@ pub async fn get_contact(
     }
 }
 
-#[derive(serde::Deserialize, Validate, Debug)]
+#[derive(serde::Deserialize, Validate, Debug, ToSchema)]
 pub struct UpdateContactRequest {
     #[validate(length(min = 1, max = 100))]
     pub first_name: Option<String>,
@@ -726,7 +727,7 @@ pub struct UpdateContactRequest {
     path = "/api/v1/crm/contacts/{id}",
     params(("id" = uuid::Uuid, Path, description = "Contact ID")),
     request_body = UpdateContactRequest,
-    responses((status = 200, description = "Contact updated", body = ApiResponse<()>)),
+    responses((status = 200, description = "Contact updated", body = ApiResponse<shared_types::Contact>)),
     tag = "crm"
 )]
 pub async fn update_contact(
@@ -735,7 +736,7 @@ pub async fn update_contact(
     DbConn(mut conn): DbConn,
     Path(id): Path<uuid::Uuid>,
     Json(req): Json<UpdateContactRequest>,
-) -> Json<ApiResponse<serde_json::Value>> {
+) -> Json<ApiResponse<shared_types::Contact>> {
     info!("Update contact {}", id);
     if let Err(e) = req.validate() {
         return Json(ApiResponse::error_typed(format!("Invalid input: {}", e)));
@@ -774,20 +775,20 @@ pub async fn update_contact(
 
     match row {
         Ok(row) => {
-            let json = serde_json::json!({
-                "id": row.get::<uuid::Uuid, _>("id"),
-                "tenant_id": row.get::<uuid::Uuid, _>("tenant_id"),
-                "company_id": row.try_get::<Option<uuid::Uuid>, _>("company_id").ok(),
-                "first_name": row.get::<String, _>("first_name"),
-                "last_name": row.get::<String, _>("last_name"),
-                "email": row.try_get::<Option<String>, _>("email").unwrap_or(None),
-                "phone": row.try_get::<Option<String>, _>("phone").unwrap_or(None),
-                "position": row.try_get::<Option<String>, _>("position").unwrap_or(None),
-                "notes": row.try_get::<Option<String>, _>("notes").unwrap_or(None),
-                "is_active": row.get::<bool, _>("is_active"),
-                "created_at": row.get::<chrono::DateTime<chrono::Utc>, _>("created_at"),
-                "updated_at": row.get::<chrono::DateTime<chrono::Utc>, _>("updated_at"),
-            });
+            let json = shared_types::Contact {
+                id: row.get("id"),
+                tenant_id: row.get("tenant_id"),
+                company_id: row.try_get("company_id").ok(),
+                first_name: row.get("first_name"),
+                last_name: row.get("last_name"),
+                email: row.try_get("email").unwrap_or(None),
+                phone: row.try_get("phone").unwrap_or(None),
+                position: row.try_get("position").unwrap_or(None),
+                notes: row.try_get("notes").unwrap_or(None),
+                is_active: row.get("is_active"),
+                created_at: row.get("created_at"),
+                updated_at: row.get("updated_at"),
+            };
             Json(ApiResponse::success(json))
         }
         Err(e) => Json(ApiResponse::error_typed(format!("{}", e)))
