@@ -1,17 +1,13 @@
-use std::sync::Arc;
-
 use axum::{
-    extract::{State, Request},
+    extract::Request,
     middleware::Next,
     response::Response,
 };
 
-use crate::state::AppState;
 use super::auth_middleware::CurrentUser;
 
 pub async fn set_tenant_context(
-    State(state): State<Arc<AppState>>,
-    mut req: Request,
+    req: Request,
     next: Next,
 ) -> Result<Response, Response> {
     // Get CurrentUser from extensions
@@ -19,16 +15,8 @@ pub async fn set_tenant_context(
         return Err(axum::response::IntoResponse::into_response(axum::http::StatusCode::UNAUTHORIZED));
     };
 
-    // Set Postgres GUC for RLS
-    let sql = "SELECT set_config('app.current_tenant_id', $1, true)";
-    if let Err(e) = sqlx::query(sql)
-        .bind(user.tenant_id.to_string())
-        .execute(&state.db_pool)
-        .await
-    {
-        eprintln!("Failed to set tenant context: {:?}", e);
-        return Err(axum::response::IntoResponse::into_response(axum::http::StatusCode::INTERNAL_SERVER_ERROR));
-    }
+    // We defer SET LOCAL ke level handler menggunakan koneksi dari extractor DbConn.
+    // Middleware ini hanya memastikan CurrentUser tersedia. Jika perlu, kita bisa melakukan pengecekan tambahan di sini.
 
     Ok(next.run(req).await)
 }

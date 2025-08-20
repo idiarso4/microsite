@@ -4,6 +4,7 @@ mod middleware;
 mod routes;
 mod services;
 mod state;
+mod extractors;
 
 use anyhow::Result;
 use axum::Router;
@@ -63,18 +64,20 @@ async fn create_app(state: AppState) -> Result<Router> {
         .allow_headers(Any)
         .allow_credentials(true);
 
+    let shared_state = Arc::new(state);
     let middleware_stack = ServiceBuilder::new()
         .layer(TraceLayer::new_for_http())
         .layer(cors)
         .layer(middleware::request_id::RequestIdLayer::new())
-        .layer(middleware::error_handler::ErrorHandlerLayer::new());
+        .layer(middleware::error_handler::ErrorHandlerLayer::new())
+        .layer(middleware::auth_layer::AuthLayer::new(shared_state.clone()));
 
     let app = Router::new()
         .nest("/api/v1", routes::api_routes())
         .nest("/docs", routes::docs_routes())
         .route("/health", axum::routing::get(handlers::health::health_check))
         .layer(middleware_stack)
-        .with_state(Arc::new(state));
+        .with_state(shared_state);
 
     Ok(app)
 }

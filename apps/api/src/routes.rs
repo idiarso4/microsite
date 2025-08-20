@@ -56,7 +56,6 @@ pub fn crm_routes() -> Router<Arc<AppState>> {
         .route("/contacts/:id", get(handlers::crm::get_contact))
         .route("/contacts/:id", axum::routing::put(handlers::crm::update_contact))
         .route("/contacts/:id", axum::routing::delete(handlers::crm::delete_contact))
-
 }
 
 pub fn inventory_routes() -> Router<Arc<AppState>> {
@@ -107,6 +106,17 @@ pub fn docs_routes() -> Router<Arc<AppState>> {
             handlers::health::health_check,
             handlers::auth::login,
             handlers::auth::register_tenant,
+            handlers::auth::refresh,
+            handlers::crm::list_companies,
+            handlers::crm::create_company,
+            handlers::crm::get_company,
+            handlers::crm::update_company,
+            handlers::crm::delete_company,
+            handlers::crm::list_contacts,
+            handlers::crm::create_contact,
+            handlers::crm::get_contact,
+            handlers::crm::update_contact,
+            handlers::crm::delete_contact,
         ),
         components(
             schemas(
@@ -114,11 +124,13 @@ pub fn docs_routes() -> Router<Arc<AppState>> {
                 shared_types::LoginRequest,
                 shared_types::LoginResponse,
                 shared_types::RegisterTenantRequest,
+                shared_types::RefreshTokenRequest,
             )
         ),
         tags(
             (name = "auth", description = "Authentication endpoints"),
             (name = "health", description = "Health check endpoints"),
+            (name = "crm", description = "CRM endpoints"),
         )
     )]
     struct ApiDoc;

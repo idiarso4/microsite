@@ -5,7 +5,7 @@ use shared_types::{
 };
 use validator::Validate;
 use std::sync::Arc;
-use tracing::{info, warn};
+use tracing::info;
 
 use crate::state::AppState;
 
@@ -98,6 +98,17 @@ pub async fn logout(
 }
 
 /// Refresh access token
+#[utoipa::path(
+    post,
+    path = "/api/v1/auth/refresh",
+    request_body = RefreshTokenRequest,
+    responses(
+        (status = 200, description = "Token refreshed", body = ApiResponse<LoginResponse>),
+        (status = 401, description = "Invalid or expired token", body = ApiResponse<()>),
+        (status = 422, description = "Validation error", body = ApiResponse<()>)
+    ),
+    tag = "auth"
+)]
 pub async fn refresh(
     State(state): State<Arc<AppState>>,
     Json(request): Json<RefreshTokenRequest>,

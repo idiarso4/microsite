@@ -1,0 +1,15 @@
+# API Docker ignore
+/target/
+/.git/
+/.gitignore
+/.env*
+/.DS_Store
+/dist/
+/build/
+/.cache/
+/coverage/
+/.sqlx/
+/.vscode/
+/.idea/
+/migrations/*.bak
+

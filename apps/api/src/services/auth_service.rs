@@ -133,7 +133,7 @@ impl<'a> AuthAppService<'a> {
 
         // Store refresh token in Redis with TTL (map token -> user_id,tenant_id)
         {
-            use redis::AsyncCommands;
+            
             let mut conn = self.redis.clone();
             let key = format!("refresh:{}", refresh_token);
             let ttl = (self.jwt.refresh_token_expires_at() - Utc::now()).num_seconds();

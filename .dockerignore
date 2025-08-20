@@ -1,0 +1,15 @@
+# Global Docker ignore
+**/target/
+**/node_modules/
+**/.git/
+**/.gitignore
+**/.env*
+**/.DS_Store
+**/dist/
+**/build/
+**/.cache/
+**/coverage/
+**/.sqlx/
+**/.vscode/
+**/.idea/
+
