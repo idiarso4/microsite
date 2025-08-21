@@ -1,7 +1,7 @@
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
 import { Routes, Route } from 'react-router-dom'
-import LandingPage from './components/LandingPage'
+import ComprehensiveLandingPage from './components/ComprehensiveLandingPage'
 import LoginPage from './components/auth/LoginPage'
 import DashboardLayout from './components/dashboard/DashboardLayout'
 import DashboardOverview from './components/dashboard/DashboardOverview'
@@ -55,7 +55,7 @@ export default function App() {
       <CssBaseline />
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<ComprehensiveLandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={
             <ProtectedRoute>
