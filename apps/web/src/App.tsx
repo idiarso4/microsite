@@ -179,6 +179,14 @@ export default function App() {
             </ProtectedRoute>
           } />
 
+          {/* Module Routes */}
+          <Route path="/accounting" element={<Navigate to="/accounting/login" replace />} />
+          <Route path="/inventory" element={<Navigate to="/inventory/login" replace />} />
+          <Route path="/crm" element={<Navigate to="/crm/login" replace />} />
+          <Route path="/hr" element={<Navigate to="/hr/login" replace />} />
+          <Route path="/manufacturing" element={<Navigate to="/manufacturing/login" replace />} />
+          <Route path="/procurement" element={<Navigate to="/procurement/login" replace />} />
+
           {/* Handle common mistyped URLs */}
           <Route path="/l" element={<Navigate to="/login" replace />} />
           <Route path="/d" element={<Navigate to="/dashboard" replace />} />

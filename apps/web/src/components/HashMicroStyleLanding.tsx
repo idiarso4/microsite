@@ -105,22 +105,22 @@ export default function HashMicroStyleLanding() {
   const navigationMenus = {
     'Produk': {
       'Solutions for all': [
-        { name: 'ERP', path: '/solutions/erp', description: 'Enterprise Resource Planning', icon: '🏢' },
-        { name: 'Accounting', path: '/solutions/accounting', description: 'Sistem akuntansi terintegrasi', icon: '📊' },
+        { name: 'ERP', path: '/dashboard', description: 'Enterprise Resource Planning', icon: '🏢' },
+        { name: 'Accounting', path: '/accounting', description: 'Sistem akuntansi terintegrasi', icon: '📊' },
         { name: 'Asset', path: '/solutions/asset', description: 'Manajemen aset perusahaan', icon: '📋' },
         { name: 'e-Invoicing', path: '/solutions/e-invoicing', description: 'Faktur elektronik otomatis', icon: '📄' },
         { name: 'Contract', path: '/solutions/contract', description: 'Manajemen kontrak digital', icon: '📝' }
       ],
       'Sales Solutions': [
-        { name: 'CRM-Leads', path: '/solutions/crm-leads', description: 'Manajemen prospek pelanggan', icon: '🎯' },
-        { name: 'CRM-Sales', path: '/solutions/crm-sales', description: 'Sistem penjualan terintegrasi', icon: '💼' },
+        { name: 'CRM-Leads', path: '/crm', description: 'Manajemen prospek pelanggan', icon: '🎯' },
+        { name: 'CRM-Sales', path: '/crm', description: 'Sistem penjualan terintegrasi', icon: '💼' },
         { name: 'POS-General', path: '/solutions/pos-general', description: 'Point of Sale umum', icon: '🛒' },
         { name: 'POS-Retail', path: '/solutions/pos-retail', description: 'Point of Sale retail', icon: '🏪' },
         { name: 'Marketing Automation', path: '/solutions/marketing', description: 'Otomasi pemasaran digital', icon: '📢' }
       ],
       'Supply Chain Solutions': [
-        { name: 'Inventory', path: '/solutions/inventory', description: 'Manajemen inventori real-time', icon: '📦' },
-        { name: 'Procurement', path: '/solutions/procurement', description: 'Sistem pengadaan barang', icon: '🛍️' },
+        { name: 'Inventory', path: '/inventory', description: 'Manajemen inventori real-time', icon: '📦' },
+        { name: 'Procurement', path: '/procurement', description: 'Sistem pengadaan barang', icon: '🛍️' },
         { name: 'Supply Chain', path: '/solutions/supply-chain', description: 'Rantai pasok terintegrasi', icon: '🔗' },
         { name: 'Barcode', path: '/solutions/barcode', description: 'Sistem barcode otomatis', icon: '📱' },
         { name: 'Warehouse', path: '/solutions/warehouse', description: 'Manajemen gudang pintar', icon: '🏭' },
@@ -139,13 +139,13 @@ export default function HashMicroStyleLanding() {
       'Industrial Sectors': [
         { name: 'Fleet', path: '/solutions/fleet', description: 'Manajemen armada kendaraan', icon: '🚛' },
         { name: 'Konstruksi', path: '/solutions/construction', description: 'Industri konstruksi & bangunan', icon: '🏗️' },
-        { name: 'Manufaktur', path: '/solutions/manufacturing', description: 'Industri manufaktur & produksi', icon: '🏭' },
+        { name: 'Manufaktur', path: '/manufacturing', description: 'Industri manufaktur & produksi', icon: '🏭' },
         { name: 'Engineering', path: '/solutions/engineering', description: 'Layanan engineering profesional', icon: '⚙️' },
         { name: 'IT Inventory', path: '/solutions/it-inventory', description: 'Inventori perangkat IT', icon: '💻' },
         { name: 'Pertambangan', path: '/solutions/mining', description: 'Industri pertambangan', icon: '⛏️' }
       ],
       'HR Solutions': [
-        { name: 'HRM', path: '/solutions/hrm', description: 'Human Resource Management', icon: '👥' },
+        { name: 'HRM', path: '/hr', description: 'Human Resource Management', icon: '👥' },
         { name: 'Timesheet', path: '/solutions/timesheet', description: 'Pencatatan waktu kerja', icon: '⏰' },
         { name: 'Staff Competency', path: '/solutions/competency', description: 'Kompetensi & skill karyawan', icon: '📈' },
         { name: 'e-Learning', path: '/solutions/elearning', description: 'Platform pembelajaran online', icon: '🎓' }
