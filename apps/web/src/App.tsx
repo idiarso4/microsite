@@ -1,6 +1,6 @@
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import ComprehensiveLandingPage from './components/ComprehensiveLandingPage'
 import HashMicroStyleLanding from './components/HashMicroStyleLanding'
 import LoginPage from './components/auth/LoginPage'
