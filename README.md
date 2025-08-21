@@ -1,21 +1,69 @@
-# MicroSite ERP - Enterprise Resource Planning System
+# MicroSite ERP - Modular Enterprise Resource Planning System
 
-A comprehensive, modern ERP (Enterprise Resource Planning) system built with React, TypeScript, Node.js, and PostgreSQL. This full-stack application provides complete business management capabilities with professional UI/UX and real-time analytics.
+A comprehensive, modern ERP (Enterprise Resource Planning) system built with React, TypeScript, Node.js, and PostgreSQL. This full-stack application provides complete business management capabilities with **modular landing pages**, professional UI/UX, and real-time analytics.
+
+## 🌟 **NEW: Modular Landing Pages System**
+
+**Inspired by HashMicro's approach**, MicroSite ERP now features dedicated landing pages for each business module, eliminating confusion and providing focused user experiences.
+
+### 🎯 **Module-Specific Landing Pages**
+Each business module now has its own professional landing page with:
+- ✅ **Dedicated branding** and color schemes
+- ✅ **Module-specific value propositions**
+- ✅ **Focused feature showcases**
+- ✅ **Separate login flows** for each module
+- ✅ **Professional contact information** per business area
 
 ## 🚀 Features Overview
 
-### 📊 **Complete Business Modules**
-- **Dashboard** - Real-time business overview with KPI metrics
-- **CRM/Leads** - Customer relationship management and lead tracking
-- **Orders** - Sales order management with customer integration
-- **Inventory** - Product and stock management with low-stock alerts
-- **Finance** - Transaction management and financial tracking
-- **Procurement** - Purchase order and supplier management
-- **HR** - Employee management with payroll integration
-- **Analytics** - Business intelligence with interactive charts
-- **Reports** - Comprehensive reporting with CSV export
+### 📊 **6 Complete Business Modules with Dedicated Landing Pages**
+
+#### 💰 **Accounting & Finance** (`/accounting`)
+- **Landing Page**: Professional green-themed landing page
+- **Features**: General Ledger, A/P & A/R, Financial Reports, Tax Management
+- **Value Prop**: Compliance terjamin, efisiensi 10x lebih cepat
+- **Login**: Dedicated accounting login at `/accounting/login`
+
+#### 📦 **Inventory Management** (`/inventory`)
+- **Landing Page**: Orange-themed warehouse-focused landing page
+- **Features**: Stock Management, Barcode/QR, Warehouse Management, Supply Chain
+- **Value Prop**: Real-time tracking, automated reordering
+- **Login**: Dedicated inventory login at `/inventory/login`
+
+#### 👥 **Human Resources** (`/hr`)
+- **Landing Page**: Blue-themed HR-focused landing page
+- **Features**: Employee Database, Payroll, Time & Attendance, Performance Management
+- **Value Prop**: Employee self-service, produktivitas meningkat
+- **Login**: Dedicated HR login at `/hr/login`
+
+#### 🤝 **CRM & Sales** (`/crm`)
+- **Landing Page**: Purple-themed sales-focused landing page
+- **Features**: Lead Management, Sales Pipeline, Customer 360°, Sales Analytics
+- **Value Prop**: Sales meningkat 40%, customer retention
+- **Login**: Dedicated CRM login at `/crm/login`
+
+#### 🏭 **Manufacturing** (`/manufacturing`)
+- **Landing Page**: Brown-themed production-focused landing page
+- **Features**: Production Planning, Quality Control, Work Orders, Bill of Materials
+- **Value Prop**: Efisiensi produksi +30%, quality assurance
+- **Login**: Dedicated manufacturing login at `/manufacturing/login`
+
+#### 🛒 **Procurement** (`/procurement`)
+- **Landing Page**: Blue-grey themed e-procurement landing page
+- **Features**: Vendor Management, Purchase Orders, Cost Control, Supply Planning
+- **Value Prop**: Cost savings 25%, process efficiency
+- **Login**: Dedicated procurement login at `/procurement/login`
+
+### 🎨 **HashMicro-Style Design Elements**
+- **Professional Hero Sections**: Left content + right dashboard preview
+- **"Mengapa Pilih MicroSite?" Sections**: 3 benefit highlights per module
+- **Color-Coded Module Identity**: Each module has its own professional color scheme
+- **Contact & Support**: Module-specific contact information and support
+- **Responsive Design**: Mobile-first approach with tablet and desktop optimization
 
 ### 🎯 **Key Capabilities**
+- **Modular Landing Pages** with HashMicro-style design
+- **Module-Specific Login Flows** eliminating user confusion
 - **Complete CRUD Operations** for all modules
 - **Real-time Data Visualization** with charts and graphs
 - **Professional Export System** (CSV format)
@@ -24,6 +72,32 @@ A comprehensive, modern ERP (Enterprise Resource Planning) system built with Rea
 - **Comprehensive Settings** with persistent storage
 - **Responsive Design** optimized for all devices
 - **Accessibility Compliant** following WCAG guidelines
+
+### 🔗 **Modular Routing System**
+```
+Main Landing Page:
+/                    → Main landing page with module selection
+
+Module Landing Pages:
+/accounting          → Accounting & Finance landing page
+/inventory           → Inventory Management landing page
+/hr                  → Human Resources landing page
+/crm                 → CRM & Sales landing page
+/manufacturing       → Manufacturing landing page
+/procurement         → Procurement landing page
+
+Module Login Pages:
+/accounting/login    → Dedicated accounting login
+/inventory/login     → Dedicated inventory login
+/hr/login            → Dedicated HR login
+/crm/login           → Dedicated CRM login
+/manufacturing/login → Dedicated manufacturing login
+/procurement/login   → Dedicated procurement login
+
+ERP Dashboard:
+/login               → General ERP login (all modules)
+/dashboard           → Complete ERP dashboard
+```
 
 ## 🛠 Technology Stack
 
@@ -173,12 +247,39 @@ microsite/
 │   │   ├── prisma/   # Database schema & migrations
 │   │   └── package.json
 │   └── web/          # Frontend React app
-│       ├── src/      # Source code
+│       ├── src/
+│       │   ├── components/
+│       │   │   ├── dashboard/     # Main ERP dashboard components
+│       │   │   └── auth/          # Authentication components
+│       │   ├── modules/           # 🆕 MODULAR LANDING PAGES
+│       │   │   ├── accounting/    # 💰 Accounting module
+│       │   │   │   ├── AccountingLandingPage.tsx
+│       │   │   │   └── AccountingLoginPage.tsx
+│       │   │   ├── inventory/     # 📦 Inventory module
+│       │   │   │   └── InventoryLandingPage.tsx
+│       │   │   ├── hr/            # 👥 HR module
+│       │   │   │   └── HRLandingPage.tsx
+│       │   │   ├── crm/           # 🤝 CRM module
+│       │   │   │   └── CRMLandingPage.tsx
+│       │   │   ├── manufacturing/ # 🏭 Manufacturing module
+│       │   │   │   └── ManufacturingLandingPage.tsx
+│       │   │   └── procurement/   # 🛒 Procurement module
+│       │   │       └── ProcurementLandingPage.tsx
+│       │   ├── contexts/          # React contexts
+│       │   ├── utils/             # Utility functions
+│       │   └── App.tsx            # Main app with modular routing
 │       ├── public/   # Static assets
 │       └── package.json
 ├── package.json      # Root package.json
 └── README.md
 ```
+
+### 🆕 **Modular Architecture Benefits**
+- **Scalable**: Easy to add new business modules
+- **Maintainable**: Each module is self-contained
+- **Focused**: Module-specific user experiences
+- **Professional**: Enterprise-grade presentation
+- **Flexible**: Can be deployed as separate micro-frontends
 
 ### Database Operations
 ```bash
@@ -313,6 +414,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] Profile and settings management
 - [x] CSV export functionality
 
+### ✅ Phase 1.5 (Completed) - Modular Landing Pages System
+- [x] **HashMicro-inspired modular architecture**
+- [x] **6 dedicated landing pages** for each business module
+- [x] **Module-specific branding** and color schemes
+- [x] **Professional hero sections** with dashboard previews
+- [x] **"Mengapa Pilih MicroSite?" benefit sections**
+- [x] **Dedicated login flows** for each module
+- [x] **Module-specific contact information** and support
+- [x] **Responsive design** for all screen sizes
+- [x] **Scalable routing system** for future modules
+- [x] **Eliminated user confusion** about module access
+- [x] **Enterprise-grade presentation** matching industry standards
+
 ### 🚀 Phase 2 - Enhancement & Optimization
 - [ ] Advanced analytics and business intelligence
 - [ ] Workflow automation and approval processes
@@ -341,10 +455,55 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **✅ Production Ready**: This ERP system is fully functional with all core business modules implemented and tested. It includes professional UI/UX, real-time data, comprehensive CRUD operations, and export capabilities.
 
-**🎯 Perfect for**: Small to medium businesses looking for a complete, modern ERP solution with professional features and user experience.
+**� Modular Landing Pages**: Now features HashMicro-inspired modular architecture with dedicated landing pages for each business module, eliminating user confusion and providing focused experiences.
+
+**�🎯 Perfect for**:
+- Small to medium businesses looking for a complete, modern ERP solution
+- Companies wanting module-specific presentations for different departments
+- Organizations needing professional, enterprise-grade landing pages
+- Businesses requiring focused user experiences per business area
+
+**🌟 Key Differentiators**:
+- **Modular Architecture**: Each business module has its own professional landing page
+- **No User Confusion**: Clear entry points for each business area
+- **Enterprise Presentation**: HashMicro-style professional design
+- **Scalable System**: Easy to add new modules and landing pages
+
+---
+
+## 🆕 **Modular Landing Pages System**
+
+### 🎯 **Problem Solved**
+**Before**: Users were confused about which module they were accessing when clicking "Login"
+**After**: Each business module has its own professional landing page and clear entry point
+
+### 🌟 **HashMicro-Inspired Design**
+Our modular system follows HashMicro's successful approach:
+- **Dedicated landing pages** for each business module
+- **Professional branding** with module-specific color schemes
+- **Focused value propositions** for different business needs
+- **Clear navigation** between modules and main site
+
+### 📊 **Module Overview**
+| Module | Route | Color | Focus Area |
+|--------|-------|-------|------------|
+| 💰 Accounting | `/accounting` | Green | Financial Management |
+| 📦 Inventory | `/inventory` | Orange | Warehouse Operations |
+| 👥 HR | `/hr` | Blue | Human Resources |
+| 🤝 CRM | `/crm` | Purple | Customer Relations |
+| 🏭 Manufacturing | `/manufacturing` | Brown | Production Control |
+| 🛒 Procurement | `/procurement` | Blue-grey | e-Procurement |
+
+### 🚀 **Business Benefits**
+- **Marketing**: Each module can be promoted independently
+- **Sales**: Focused presentations for specific business needs
+- **User Experience**: No confusion about module access
+- **Scalability**: Easy to add new modules and landing pages
 
 ---
 
 *Built with ❤️ using React, TypeScript, Node.js, and PostgreSQL*
+
+*Modular Landing Pages System inspired by HashMicro's approach to enterprise ERP presentation*
 
 
