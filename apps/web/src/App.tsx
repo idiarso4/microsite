@@ -3,6 +3,11 @@ import { CssBaseline } from '@mui/material'
 import { Routes, Route } from 'react-router-dom'
 import ComprehensiveLandingPage from './components/ComprehensiveLandingPage'
 import LoginPage from './components/auth/LoginPage'
+import AccountingLandingPage from './modules/accounting/AccountingLandingPage'
+import AccountingLoginPage from './modules/accounting/AccountingLoginPage'
+import InventoryLandingPage from './modules/inventory/InventoryLandingPage'
+import HRLandingPage from './modules/hr/HRLandingPage'
+import CRMLandingPage from './modules/crm/CRMLandingPage'
 import DashboardLayout from './components/dashboard/DashboardLayout'
 import DashboardOverview from './components/dashboard/DashboardOverview'
 import CRMPage from './components/dashboard/CRMPage'
@@ -57,6 +62,18 @@ export default function App() {
         <Routes>
           <Route path="/" element={<ComprehensiveLandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+
+          {/* Module Landing Pages */}
+          <Route path="/accounting" element={<AccountingLandingPage />} />
+          <Route path="/inventory" element={<InventoryLandingPage />} />
+          <Route path="/hr" element={<HRLandingPage />} />
+          <Route path="/crm" element={<CRMLandingPage />} />
+
+          {/* Module Login Pages */}
+          <Route path="/accounting/login" element={<AccountingLoginPage />} />
+          <Route path="/inventory/login" element={<LoginPage />} />
+          <Route path="/hr/login" element={<LoginPage />} />
+          <Route path="/crm/login" element={<LoginPage />} />
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <DashboardLayout>

@@ -352,9 +352,22 @@ export default function ComprehensiveLandingPage() {
                           backgroundColor: '#DC143C',
                           '&:hover': { backgroundColor: '#B91C3C' }
                         }}
-                        onClick={() => navigate(`/login?module=${solution.category.toLowerCase()}`)}
+                        onClick={() => {
+                          const moduleRoutes = {
+                            'finance': '/accounting',
+                            'inventory': '/inventory',
+                            'hr': '/hr',
+                            'crm': '/crm',
+                            'manufacturing': '/manufacturing',
+                            'procurement': '/procurement',
+                            'analytics': '/analytics',
+                            'reports': '/reports'
+                          }
+                          const route = moduleRoutes[solution.category.toLowerCase() as keyof typeof moduleRoutes]
+                          navigate(route || '/login')
+                        }}
                       >
-                        Start with {solution.category}
+                        Explore {solution.category}
                       </Button>
                       <Button
                         variant="outlined"
