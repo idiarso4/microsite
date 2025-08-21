@@ -17,6 +17,8 @@ interface AuthContextType {
   logout: () => void
   register: (userData: RegisterData) => Promise<void>
   updateProfile: (userData: Partial<User>) => Promise<void>
+  loginDemo: () => void
+  isDemoMode: boolean
 }
 
 interface RegisterData {

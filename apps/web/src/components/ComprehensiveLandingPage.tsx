@@ -64,49 +64,65 @@ export default function ComprehensiveLandingPage() {
       icon: <AccountBalance sx={{ fontSize: 40, color: '#DC143C' }} />,
       title: 'Accounting & Finance',
       description: 'Complete financial management with automated bookkeeping, invoicing, and reporting.',
-      features: ['General Ledger', 'Accounts Payable/Receivable', 'Financial Reports', 'Tax Management']
+      features: ['General Ledger', 'Accounts Payable/Receivable', 'Financial Reports', 'Tax Management'],
+      demoPath: '/finance',
+      category: 'Finance'
     },
     {
       icon: <Inventory sx={{ fontSize: 40, color: '#4CAF50' }} />,
       title: 'Inventory Management',
       description: 'Real-time stock tracking, warehouse management, and automated reordering.',
-      features: ['Multi-warehouse', 'Stock Alerts', 'Barcode Scanning', 'Inventory Reports']
+      features: ['Multi-warehouse', 'Stock Alerts', 'Barcode Scanning', 'Inventory Reports'],
+      demoPath: '/inventory',
+      category: 'Inventory'
     },
     {
       icon: <People sx={{ fontSize: 40, color: '#2196F3' }} />,
       title: 'Human Resources',
       description: 'Employee management, payroll processing, and performance tracking.',
-      features: ['Employee Database', 'Payroll Management', 'Leave Management', 'Performance Reviews']
+      features: ['Employee Database', 'Payroll Management', 'Leave Management', 'Performance Reviews'],
+      demoPath: '/hr',
+      category: 'HR'
     },
     {
       icon: <ShoppingCart sx={{ fontSize: 40, color: '#FF9800' }} />,
       title: 'Sales & CRM',
       description: 'Customer relationship management with sales pipeline and lead tracking.',
-      features: ['Lead Management', 'Sales Pipeline', 'Customer Database', 'Sales Reports']
+      features: ['Lead Management', 'Sales Pipeline', 'Customer Database', 'Sales Reports'],
+      demoPath: '/crm',
+      category: 'CRM'
     },
     {
       icon: <Build sx={{ fontSize: 40, color: '#9C27B0' }} />,
       title: 'Manufacturing',
       description: 'Production planning, quality control, and manufacturing execution.',
-      features: ['Production Planning', 'Quality Control', 'Bill of Materials', 'Work Orders']
+      features: ['Production Planning', 'Quality Control', 'Bill of Materials', 'Work Orders'],
+      demoPath: '/orders',
+      category: 'Manufacturing'
     },
     {
       icon: <LocalShipping sx={{ fontSize: 40, color: '#607D8B' }} />,
       title: 'Supply Chain',
       description: 'Procurement, vendor management, and supply chain optimization.',
-      features: ['Vendor Management', 'Purchase Orders', 'Supply Planning', 'Logistics']
+      features: ['Vendor Management', 'Purchase Orders', 'Supply Planning', 'Logistics'],
+      demoPath: '/procurement',
+      category: 'Procurement'
     },
     {
       icon: <Assessment sx={{ fontSize: 40, color: '#795548' }} />,
       title: 'Business Intelligence',
       description: 'Advanced analytics, reporting, and data visualization tools.',
-      features: ['Custom Dashboards', 'Real-time Reports', 'Data Analytics', 'KPI Tracking']
+      features: ['Custom Dashboards', 'Real-time Reports', 'Data Analytics', 'KPI Tracking'],
+      demoPath: '/analytics',
+      category: 'Analytics'
     },
     {
       icon: <CloudUpload sx={{ fontSize: 40, color: '#3F51B5' }} />,
-      title: 'Cloud Integration',
-      description: 'Seamless cloud deployment with scalability and security.',
-      features: ['Cloud Hosting', 'Data Backup', 'Scalability', 'Security']
+      title: 'Reports & Export',
+      description: 'Comprehensive reporting system with export capabilities.',
+      features: ['Custom Reports', 'CSV Export', 'Data Analysis', 'Scheduled Reports'],
+      demoPath: '/reports',
+      category: 'Reports'
     }
   ]
 
@@ -207,41 +223,47 @@ export default function ComprehensiveLandingPage() {
             gutterBottom
             sx={{ fontWeight: 'bold', mb: 3 }}
           >
-            Complete Business Management Solutions
+            Choose Your Business Solution
           </Typography>
           <Typography
             variant={isMobile ? "h6" : "h5"}
-            sx={{ mb: 4, opacity: 0.9 }}
+            sx={{ mb: 2, opacity: 0.9 }}
           >
-            Integrated ERP platform for modern businesses - from accounting to manufacturing
+            Start with one module or get the complete integrated platform
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{ mb: 4, opacity: 0.8 }}
+          >
+            Pick CRM only, Accounting only, HR only, or any combination that fits your business needs
           </Typography>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
             <Button
               variant="contained"
               size="large"
-              sx={{ 
-                backgroundColor: '#DC143C', 
+              sx={{
+                backgroundColor: '#DC143C',
                 '&:hover': { backgroundColor: '#B91C3C' },
                 px: 4,
                 py: 1.5
               }}
-              onClick={() => navigate('/login')}
+              onClick={() => scrollToSection('solutions')}
             >
-              Start Free Trial
+              Choose Your Module
             </Button>
             <Button
               variant="outlined"
               size="large"
-              sx={{ 
-                borderColor: 'white', 
+              sx={{
+                borderColor: 'white',
                 color: 'white',
                 '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' },
                 px: 4,
                 py: 1.5
               }}
-              onClick={() => setContactDialog(true)}
+              onClick={() => navigate('/login')}
             >
-              Request Demo
+              Get Complete ERP
             </Button>
           </Stack>
         </Container>
@@ -280,8 +302,11 @@ export default function ComprehensiveLandingPage() {
       {/* Business Solutions Section */}
       <Box id="solutions" sx={{ py: 8 }}>
         <Container maxWidth="lg">
-          <Typography variant="h3" component="h2" textAlign="center" gutterBottom sx={{ fontWeight: 'bold', mb: 6 }}>
-            Comprehensive Business Solutions
+          <Typography variant="h3" component="h2" textAlign="center" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
+            Choose Your Business Module
+          </Typography>
+          <Typography variant="h6" textAlign="center" color="text.secondary" sx={{ mb: 6 }}>
+            Start with one module or combine multiple modules as your business grows
           </Typography>
 
           <Grid container spacing={4}>
@@ -317,6 +342,87 @@ export default function ComprehensiveLandingPage() {
                         </ListItem>
                       ))}
                     </List>
+
+                    <Box sx={{ mt: 3, display: 'flex', gap: 1 }}>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        fullWidth
+                        sx={{
+                          backgroundColor: '#DC143C',
+                          '&:hover': { backgroundColor: '#B91C3C' }
+                        }}
+                        onClick={() => navigate(`/login?module=${solution.category.toLowerCase()}`)}
+                      >
+                        Start with {solution.category}
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          borderColor: '#DC143C',
+                          color: '#DC143C',
+                          '&:hover': { backgroundColor: '#DC143C', color: 'white' }
+                        }}
+                        onClick={() => setContactDialog(true)}
+                      >
+                        Learn More
+                      </Button>
+                    </Box>
+
+                    <Box sx={{ mt: 3, display: 'flex', gap: 1 }}>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        fullWidth
+                        sx={{
+                          backgroundColor: '#DC143C',
+                          '&:hover': { backgroundColor: '#B91C3C' }
+                        }}
+                        onClick={() => navigate(`/login?demo=${solution.category.toLowerCase()}&redirect=${solution.demoPath}`)}
+                      >
+                        Try {solution.category} Demo
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          borderColor: '#DC143C',
+                          color: '#DC143C',
+                          '&:hover': { backgroundColor: '#DC143C', color: 'white' }
+                        }}
+                        onClick={() => setContactDialog(true)}
+                      >
+                        Info
+                      </Button>
+                    </Box>
+
+                    <Box sx={{ mt: 3, display: 'flex', gap: 1 }}>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        fullWidth
+                        sx={{
+                          backgroundColor: '#DC143C',
+                          '&:hover': { backgroundColor: '#B91C3C' }
+                        }}
+                        onClick={() => navigate(`/demo${solution.demoPath}`)}
+                      >
+                        Try {solution.category} Demo
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          borderColor: '#DC143C',
+                          color: '#DC143C',
+                          '&:hover': { backgroundColor: '#DC143C', color: 'white' }
+                        }}
+                        onClick={() => setContactDialog(true)}
+                      >
+                        Info
+                      </Button>
+                    </Box>
                   </CardContent>
                 </Card>
               </Grid>
@@ -571,13 +677,13 @@ export default function ComprehensiveLandingPage() {
               >
                 <CardContent sx={{ p: 4 }}>
                   <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-                    Starter
+                    Single Module
                   </Typography>
                   <Typography variant="h3" sx={{ color: '#DC143C', fontWeight: 'bold', mb: 1 }}>
-                    Free
+                    $29
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                    Perfect for small businesses
+                    per module/month
                   </Typography>
 
                   <List>
@@ -585,19 +691,25 @@ export default function ComprehensiveLandingPage() {
                       <ListItemIcon sx={{ minWidth: 32 }}>
                         <CheckCircle sx={{ color: '#4CAF50', fontSize: 20 }} />
                       </ListItemIcon>
-                      <ListItemText primary="Up to 5 users" />
+                      <ListItemText primary="Choose any 1 module" />
                     </ListItem>
                     <ListItem sx={{ px: 0 }}>
                       <ListItemIcon sx={{ minWidth: 32 }}>
                         <CheckCircle sx={{ color: '#4CAF50', fontSize: 20 }} />
                       </ListItemIcon>
-                      <ListItemText primary="Basic modules" />
+                      <ListItemText primary="Up to 10 users" />
                     </ListItem>
                     <ListItem sx={{ px: 0 }}>
                       <ListItemIcon sx={{ minWidth: 32 }}>
                         <CheckCircle sx={{ color: '#4CAF50', fontSize: 20 }} />
                       </ListItemIcon>
                       <ListItemText primary="Email support" />
+                    </ListItem>
+                    <ListItem sx={{ px: 0 }}>
+                      <ListItemIcon sx={{ minWidth: 32 }}>
+                        <CheckCircle sx={{ color: '#4CAF50', fontSize: 20 }} />
+                      </ListItemIcon>
+                      <ListItemText primary="Basic reports" />
                     </ListItem>
                   </List>
 

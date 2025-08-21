@@ -23,7 +23,21 @@ import {
   Alert,
   Snackbar,
   TextField,
-  InputAdornment
+  InputAdornment,
+  Tabs,
+  Tab,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Divider,
+  Stack,
+  Badge,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Fab
 } from '@mui/material'
 import {
   Add,
@@ -40,7 +54,18 @@ import {
   Delete,
   Print,
   Download,
-  Search
+  Search,
+  Person,
+  Schedule,
+  Group,
+  CallMade,
+  CallReceived,
+  Message,
+  Event,
+  Star,
+  StarBorder,
+  Visibility,
+  FilterList
 } from '@mui/icons-material'
 import { apiService } from '../../services/api'
 import LeadForm from '../forms/LeadForm'
@@ -77,6 +102,11 @@ export default function CRMPage() {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [currentTab, setCurrentTab] = useState(0)
+  const [contactDialog, setContactDialog] = useState(false)
+  const [selectedContact, setSelectedContact] = useState<any>(null)
+  const [activityDialog, setActivityDialog] = useState(false)
+  const [pipelineView, setPipelineView] = useState(false)
 
   const fetchLeadsData = async () => {
     try {
@@ -275,6 +305,108 @@ export default function CRMPage() {
           </Button>
         </Box>
       </Box>
+
+      {/* CRM Features Section */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ p: 3, background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)', color: 'white' }}>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+              Customer Relationship Management
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, opacity: 0.9 }}>
+              Kelola hubungan pelanggan dengan sistem CRM terintegrasi. Pantau sales pipeline, lead tracking, dan customer database dalam satu platform.
+            </Typography>
+            <Stack direction="row" spacing={2}>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' }
+                }}
+                startIcon={<Person />}
+              >
+                Lead Management
+              </Button>
+              <Button
+                variant="outlined"
+                sx={{
+                  borderColor: 'rgba(255,255,255,0.5)',
+                  color: 'white',
+                  '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                }}
+                startIcon={<TrendingUp />}
+              >
+                Sales Pipeline
+              </Button>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 3, height: '100%' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+              CRM Features
+            </Typography>
+            <List sx={{ py: 0 }}>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <Person sx={{ color: '#4CAF50' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Lead Management"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <TrendingUp sx={{ color: '#2196F3' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Sales Pipeline"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <Group sx={{ color: '#FF9800' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Customer Database"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <Assignment sx={{ color: '#9C27B0' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Sales Reports"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <CallMade sx={{ color: '#607D8B' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Call Tracking"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <Email sx={{ color: '#795548' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Email Integration"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+            </List>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* Stats Cards */}
       <Grid container spacing={3} mb={4}>

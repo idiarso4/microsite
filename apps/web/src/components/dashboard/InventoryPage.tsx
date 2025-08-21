@@ -23,7 +23,14 @@ import {
   Alert,
   Snackbar,
   Menu,
-  MenuItem
+  MenuItem,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  Stack,
+  Badge
 } from '@mui/material'
 import {
   Add,
@@ -38,7 +45,13 @@ import {
   Category,
   LocalShipping,
   Download,
-  MoreVert
+  MoreVert,
+  QrCode,
+  Warehouse,
+  Analytics,
+  Notifications,
+  Settings,
+  Print
 } from '@mui/icons-material'
 import { apiService } from '../../services/api'
 import ProductForm from '../forms/ProductForm'
@@ -284,6 +297,112 @@ export default function InventoryPage() {
           </Button>
         </Box>
       </Box>
+
+      {/* Monitoring Section */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ p: 3, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+              Monitoring Ribuan Stok Barang Tanpa Ribet
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, opacity: 0.9 }}>
+              Pantau dan kendalikan pergerakan stok barang secara real-time dari beberapa lokasi gudang sekaligus dan cegah inventory loss secara efektif & efisien.
+            </Typography>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: '#FF9800',
+                color: 'white',
+                '&:hover': { backgroundColor: '#F57C00' }
+              }}
+            >
+              Lihat Cara Kerja Sistem Inventaris
+            </Button>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 3, height: '100%' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+              Fitur
+            </Typography>
+            <List sx={{ py: 0 }}>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <QrCode sx={{ color: '#4CAF50' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Barcode Management"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <Analytics sx={{ color: '#2196F3' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Analisa Stock Aging"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <QrCode sx={{ color: '#FF9800' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Barcode/QR/RFID Scanning"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <Warehouse sx={{ color: '#9C27B0' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Stock Request Management"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <Settings sx={{ color: '#607D8B' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Strategi FIFO/FEFO/LIFO"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <Analytics sx={{ color: '#795548' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Multi-Unit of Measurement"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <CheckCircle sx={{ color: '#4CAF50' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Prediksi Kebutuhan Stok"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+              <ListItem sx={{ px: 0, py: 1 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <Notifications sx={{ color: '#FF5722' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Mobile Access"
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
+                />
+              </ListItem>
+            </List>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* Stats Cards */}
       <Grid container spacing={3} mb={4}>

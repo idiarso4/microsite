@@ -31,6 +31,21 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Get selected module from URL params
+  const searchParams = new URLSearchParams(location.search)
+  const selectedModule = searchParams.get('module')
+
+  const moduleInfo = {
+    'finance': { name: 'Accounting & Finance', path: '/finance', color: '#DC143C' },
+    'inventory': { name: 'Inventory Management', path: '/inventory', color: '#4CAF50' },
+    'hr': { name: 'Human Resources', path: '/hr', color: '#2196F3' },
+    'crm': { name: 'Sales & CRM', path: '/crm', color: '#FF9800' },
+    'manufacturing': { name: 'Manufacturing', path: '/orders', color: '#9C27B0' },
+    'procurement': { name: 'Supply Chain', path: '/procurement', color: '#607D8B' },
+    'analytics': { name: 'Business Intelligence', path: '/analytics', color: '#795548' },
+    'reports': { name: 'Reports & Export', path: '/reports', color: '#3F51B5' }
+  }
+
   const {
     control,
     handleSubmit,
@@ -50,9 +65,14 @@ export default function LoginPage() {
     try {
       await login(data.email, data.password)
 
-      // Redirect to intended page or dashboard
-      const from = location.state?.from?.pathname || '/dashboard'
-      navigate(from, { replace: true })
+      // Redirect based on selected module or default to dashboard
+      if (selectedModule && moduleInfo[selectedModule as keyof typeof moduleInfo]) {
+        const targetPath = moduleInfo[selectedModule as keyof typeof moduleInfo].path
+        navigate(`/dashboard${targetPath}`, { replace: true })
+      } else {
+        const from = location.state?.from?.pathname || '/dashboard'
+        navigate(from, { replace: true })
+      }
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat login')
     } finally {
@@ -105,6 +125,35 @@ export default function LoginPage() {
               Kelola sistem ERP Anda dengan mudah
             </Typography>
           </Box>
+
+          {/* Selected Module Info */}
+          {selectedModule && moduleInfo[selectedModule as keyof typeof moduleInfo] && (
+            <Box
+              sx={{
+                mb: 3,
+                p: 2,
+                backgroundColor: 'rgba(220, 20, 60, 0.05)',
+                borderRadius: 2,
+                border: '1px solid rgba(220, 20, 60, 0.2)'
+              }}
+            >
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                You selected:
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{
+                  color: moduleInfo[selectedModule as keyof typeof moduleInfo].color,
+                  fontWeight: 'bold'
+                }}
+              >
+                {moduleInfo[selectedModule as keyof typeof moduleInfo].name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Login to access this module directly
+              </Typography>
+            </Box>
+          )}
 
           {/* Error Alert */}
           {error && (

@@ -43,17 +43,77 @@ interface DashboardLayoutProps {
   children: React.ReactNode
 }
 
-const menuItems = [
-  { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard', active: true },
-  { text: 'CRM & Sales', icon: <Business />, path: '/crm', active: true },
-  { text: 'Orders', icon: <ShoppingCart />, path: '/orders', active: true },
-  { text: 'Inventory', icon: <Inventory />, path: '/inventory', active: true },
-  { text: 'Keuangan', icon: <MonetizationOn />, path: '/finance', active: true },
-  { text: 'Pembelian', icon: <LocalShipping />, path: '/procurement', active: true },
-  { text: 'Karyawan', icon: <People />, path: '/hr', active: true },
-  { text: 'Laporan', icon: <Assessment />, path: '/reports', active: true },
-  { text: 'Analytics', icon: <TrendingUp />, path: '/analytics', active: true },
-  { text: 'Pengaturan', icon: <Settings />, path: '/settings', active: true }
+const menuCategories = [
+  {
+    title: 'Analitik ERP',
+    items: [
+      { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard', active: true },
+      { text: 'Laporan Keuangan', icon: <Assessment />, path: '/reports', active: true },
+    ]
+  },
+  {
+    title: 'Manajemen SDM',
+    items: [
+      { text: 'Karyawan', icon: <People />, path: '/hr', active: true },
+      { text: 'Payroll', icon: <MonetizationOn />, path: '/hr/payroll', active: false },
+    ]
+  },
+  {
+    title: 'Manajemen Produksi',
+    items: [
+      { text: 'Manufacturing', icon: <Settings />, path: '/orders', active: true },
+      { text: 'Quality Control', icon: <Assessment />, path: '/quality', active: false },
+    ]
+  },
+  {
+    title: 'Manajemen Konstruksi',
+    items: [
+      { text: 'Project Management', icon: <Business />, path: '/projects', active: false },
+      { text: 'Resource Planning', icon: <LocalShipping />, path: '/resources', active: false },
+    ]
+  },
+  {
+    title: 'e-Procurement',
+    items: [
+      { text: 'Pembelian', icon: <LocalShipping />, path: '/procurement', active: true },
+      { text: 'Vendor Management', icon: <Business />, path: '/vendors', active: false },
+    ]
+  },
+  {
+    title: 'CRM & Sales',
+    items: [
+      { text: 'CRM & Sales', icon: <Business />, path: '/crm', active: true },
+      { text: 'Sales Pipeline', icon: <TrendingUp />, path: '/sales', active: false },
+    ]
+  },
+  {
+    title: 'Manajemen Inventaris',
+    items: [
+      { text: 'Inventory', icon: <Inventory />, path: '/inventory', active: true, highlight: true },
+      { text: 'Stock Management', icon: <Inventory />, path: '/stock', active: false },
+    ]
+  },
+  {
+    title: 'Digitalisasi Pertambangan',
+    items: [
+      { text: 'Mining Operations', icon: <Settings />, path: '/mining', active: false },
+      { text: 'Equipment Tracking', icon: <LocalShipping />, path: '/equipment', active: false },
+    ]
+  },
+  {
+    title: 'Agribisnis Modern',
+    items: [
+      { text: 'Farm Management', icon: <Settings />, path: '/farm', active: false },
+      { text: 'Crop Planning', icon: <Assessment />, path: '/crops', active: false },
+    ]
+  },
+  {
+    title: 'Trading & Distribution',
+    items: [
+      { text: 'Orders', icon: <ShoppingCart />, path: '/orders', active: true },
+      { text: 'Distribution', icon: <LocalShipping />, path: '/distribution', active: false },
+    ]
+  }
 ]
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -159,64 +219,91 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <Divider />
 
       {/* Navigation Menu */}
-      <List sx={{ px: 2, py: 1 }}>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
-            <ListItemButton
-              onClick={() => item.active ? navigate(item.path) : null}
-              disabled={!item.active}
+      <Box sx={{ px: 1, py: 1 }}>
+        {menuCategories.map((category) => (
+          <Box key={category.title} sx={{ mb: 2 }}>
+            {/* Category Title */}
+            <Typography
+              variant="caption"
               sx={{
-                borderRadius: 2,
-                opacity: item.active ? 1 : 0.5,
-                cursor: item.active ? 'pointer' : 'not-allowed',
-                '&:hover': item.active ? {
-                  backgroundColor: 'rgba(220, 20, 60, 0.1)',
-                  '& .MuiListItemIcon-root': {
-                    color: '#DC143C'
-                  },
-                  '& .MuiListItemText-primary': {
-                    color: '#DC143C',
-                    fontWeight: 'medium'
-                  }
-                } : {},
-                ...(location.pathname === item.path && item.active && {
-                  backgroundColor: 'rgba(220, 20, 60, 0.15)',
-                  borderLeft: '4px solid #DC143C',
-                  '& .MuiListItemIcon-root': {
-                    color: '#DC143C'
-                  },
-                  '& .MuiListItemText-primary': {
-                    color: '#DC143C',
-                    fontWeight: 'bold'
-                  }
-                })
+                px: 2,
+                py: 1,
+                color: 'text.secondary',
+                fontWeight: 'bold',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40 }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.text}
-                primaryTypographyProps={{
-                  fontSize: '0.9rem'
-                }}
-              />
-              {!item.active && (
-                <Chip
-                  label="Soon"
-                  size="small"
-                  sx={{
-                    fontSize: '0.7rem',
-                    height: 20,
-                    backgroundColor: '#f0f0f0',
-                    color: '#666'
-                  }}
-                />
-              )}
-            </ListItemButton>
-          </ListItem>
+              {category.title}
+            </Typography>
+
+            {/* Category Items */}
+            <List sx={{ py: 0 }}>
+              {category.items.map((item) => (
+                <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+                  <ListItemButton
+                    onClick={() => item.active ? navigate(item.path) : null}
+                    disabled={!item.active}
+                    sx={{
+                      borderRadius: 2,
+                      mx: 1,
+                      opacity: item.active ? 1 : 0.5,
+                      cursor: item.active ? 'pointer' : 'not-allowed',
+                      backgroundColor: item.highlight ? 'rgba(255, 152, 0, 0.1)' : 'transparent',
+                      border: item.highlight ? '1px solid rgba(255, 152, 0, 0.3)' : 'none',
+                      '&:hover': item.active ? {
+                        backgroundColor: item.highlight ? 'rgba(255, 152, 0, 0.2)' : 'rgba(220, 20, 60, 0.1)',
+                        '& .MuiListItemIcon-root': {
+                          color: item.highlight ? '#FF9800' : '#DC143C'
+                        },
+                        '& .MuiListItemText-primary': {
+                          color: item.highlight ? '#FF9800' : '#DC143C',
+                          fontWeight: 'medium'
+                        }
+                      } : {},
+                      ...(location.pathname === item.path && item.active && {
+                        backgroundColor: item.highlight ? 'rgba(255, 152, 0, 0.2)' : 'rgba(220, 20, 60, 0.15)',
+                        borderLeft: `4px solid ${item.highlight ? '#FF9800' : '#DC143C'}`,
+                        '& .MuiListItemIcon-root': {
+                          color: item.highlight ? '#FF9800' : '#DC143C'
+                        },
+                        '& .MuiListItemText-primary': {
+                          color: item.highlight ? '#FF9800' : '#DC143C',
+                          fontWeight: 'bold'
+                        }
+                      })
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 36 }}>
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.text}
+                      primaryTypographyProps={{
+                        fontSize: '0.875rem',
+                        fontWeight: location.pathname === item.path ? 'bold' : 'medium'
+                      }}
+                    />
+                    {!item.active && (
+                      <Chip
+                        label="Soon"
+                        size="small"
+                        sx={{
+                          fontSize: '0.65rem',
+                          height: 18,
+                          backgroundColor: 'rgba(0,0,0,0.1)',
+                          color: 'text.secondary'
+                        }}
+                      />
+                    )}
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
         ))}
-      </List>
+      </Box>
 
       <Divider sx={{ mx: 2, my: 2 }} />
 
