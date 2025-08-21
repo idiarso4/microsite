@@ -1,0 +1,251 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// User Management
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("user") // admin, user, manager
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  orders    Order[]
+  leads     Lead[]
+  purchases Purchase[]
+  employees Employee[]
+  activities Activity[]
+}
+
+// CRM Models
+model Lead {
+  id          Int      @id @default(autoincrement())
+  company     String
+  contactName String
+  email       String
+  phone       String?
+  status      String   // hot, warm, cold
+  value       Float
+  stage       String   // qualification, proposal, negotiation, closing
+  lastContact DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  assignedTo   User? @relation(fields: [assignedToId], references: [id])
+  assignedToId Int?
+  activities   Activity[]
+}
+
+model Activity {
+  id          Int      @id @default(autoincrement())
+  type        String   // call, email, meeting, note
+  description String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+  lead   Lead? @relation(fields: [leadId], references: [id])
+  leadId Int?
+}
+
+// Inventory Models
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  sku         String   @unique
+  description String?
+  price       Float
+  cost        Float
+  stock       Int      @default(0)
+  minStock    Int      @default(0)
+  status      String   @default("active") // active, inactive, discontinued
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  category     Category @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  orderItems   OrderItem[]
+  purchaseItems PurchaseItem[]
+  stockMovements StockMovement[]
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  products Product[]
+}
+
+model StockMovement {
+  id          Int      @id @default(autoincrement())
+  type        String   // in, out, adjustment
+  quantity    Int
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+// Sales & Orders
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String?
+  address   String?
+  company   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  orders Order[]
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  orderNumber String   @unique
+  status      String   @default("pending") // pending, processing, completed, cancelled
+  totalAmount Float
+  orderDate   DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId Int
+  createdBy  User     @relation(fields: [createdById], references: [id])
+  createdById Int
+  items      OrderItem[]
+}
+
+model OrderItem {
+  id       Int   @id @default(autoincrement())
+  quantity Int
+  price    Float
+  total    Float
+
+  // Relations
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+// Procurement Models
+model Purchase {
+  id              Int      @id @default(autoincrement())
+  purchaseNumber  String   @unique
+  supplierName    String
+  supplierEmail   String?
+  supplierPhone   String?
+  supplierAddress String?
+  totalAmount     Float
+  status          String   @default("pending") // pending, approved, received, cancelled
+  purchaseDate    DateTime @default(now())
+  expectedDate    DateTime?
+  receivedDate    DateTime?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  createdBy       User           @relation(fields: [createdById], references: [id])
+  createdById     Int
+  purchaseItems   PurchaseItem[]
+}
+
+model PurchaseItem {
+  id          Int     @id @default(autoincrement())
+  quantity    Int
+  unitPrice   Float
+  totalPrice  Float
+
+  // Relations
+  purchase    Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  purchaseId  Int
+  product     Product  @relation(fields: [productId], references: [id])
+  productId   Int
+}
+
+// HR Models
+model Employee {
+  id          Int      @id @default(autoincrement())
+  employeeId  String   @unique
+  name        String
+  email       String   @unique
+  phone       String?
+  address     String?
+  position    String
+  department  String
+  salary      Float
+  hireDate    DateTime
+  status      String   @default("active") // active, inactive, terminated
+  birthDate   DateTime?
+  emergencyContact String?
+  emergencyPhone   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdById Int
+  attendances Attendance[]
+  payrolls    Payroll[]
+}
+
+model Attendance {
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  checkIn     DateTime?
+  checkOut    DateTime?
+  workHours   Float?
+  status      String   @default("present") // present, absent, late, sick, leave
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  employeeId  Int
+}
+
+model Payroll {
+  id          Int      @id @default(autoincrement())
+  month       Int
+  year        Int
+  basicSalary Float
+  allowances  Float    @default(0)
+  deductions  Float    @default(0)
+  overtime    Float    @default(0)
+  totalSalary Float
+  status      String   @default("pending") // pending, paid, cancelled
+  payDate     DateTime?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  employeeId  Int
+}
