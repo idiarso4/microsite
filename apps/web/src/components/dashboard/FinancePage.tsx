@@ -221,6 +221,133 @@ export default function FinancePage() {
         </Box>
       </Box>
 
+      {/* Accounting Features Section */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ p: 3, background: 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)', color: 'white' }}>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+              Complete Financial Management
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, opacity: 0.9 }}>
+              Kelola seluruh aspek keuangan bisnis dengan sistem accounting terintegrasi.
+              Dari general ledger hingga tax management dalam satu platform.
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    color: 'white',
+                    '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' }
+                  }}
+                  startIcon={<AccountBalance />}
+                >
+                  General Ledger
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<Receipt />}
+                >
+                  Invoicing
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<CreditCard />}
+                >
+                  Payments
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<TrendingUp />}
+                >
+                  Reports
+                </Button>
+              </Grid>
+            </Grid>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 3, height: '100%' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+              Accounting Features
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <AccountBalance sx={{ color: '#4CAF50' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    General Ledger
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Complete chart of accounts
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Receipt sx={{ color: '#2196F3' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Accounts Payable/Receivable
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Manage vendor & customer accounts
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <TrendingUp sx={{ color: '#FF9800' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Financial Reports
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    P&L, Balance Sheet, Cash Flow
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CreditCard sx={{ color: '#9C27B0' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Tax Management
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    VAT, income tax calculations
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Card>
+        </Grid>
+      </Grid>
+
       {/* Stats Cards */}
       <Grid container spacing={3} mb={4}>
         {financeStats.map((stat, index) => (

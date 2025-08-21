@@ -226,6 +226,133 @@ export default function HRPage() {
         </Box>
       </Box>
 
+      {/* HR Management Section */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ p: 3, background: 'linear-gradient(135deg, #2196F3 0%, #1565C0 100%)', color: 'white' }}>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+              Human Resources Management
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, opacity: 0.9 }}>
+              Kelola seluruh aspek SDM dari employee database hingga performance review.
+              Sistem HR terintegrasi untuk efisiensi maksimal.
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    color: 'white',
+                    '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' }
+                  }}
+                  startIcon={<People />}
+                >
+                  Employee Database
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<AttachMoney />}
+                >
+                  Payroll
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<Work />}
+                >
+                  Leave Management
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<TrendingUp />}
+                >
+                  Performance
+                </Button>
+              </Grid>
+            </Grid>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 3, height: '100%' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+              HR Features
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <People sx={{ color: '#2196F3' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Employee Database
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Complete employee records
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <AttachMoney sx={{ color: '#4CAF50' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Payroll Management
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Salary, benefits, deductions
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Work sx={{ color: '#FF9800' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Leave Management
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Annual, sick, emergency leave
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <TrendingUp sx={{ color: '#9C27B0' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Performance Reviews
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    KPI tracking & evaluations
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Card>
+        </Grid>
+      </Grid>
+
       {/* Stats Cards */}
       <Grid container spacing={3} mb={4}>
         {hrStats.map((stat, index) => (

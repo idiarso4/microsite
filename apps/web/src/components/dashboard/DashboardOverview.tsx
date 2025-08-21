@@ -266,8 +266,10 @@ export default function DashboardOverview() {
                   <ListItemAvatar>
                     <Avatar
                       sx={{
-                        backgroundColor: '#DC143C15',
-                        color: '#DC143C',
+                        backgroundColor: activity.priority === 'high' ? '#DC143C15' :
+                                        activity.priority === 'medium' ? '#FF980015' : '#4CAF5015',
+                        color: activity.priority === 'high' ? '#DC143C' :
+                               activity.priority === 'medium' ? '#FF9800' : '#4CAF50',
                         width: 40,
                         height: 40
                       }}
@@ -276,15 +278,69 @@ export default function DashboardOverview() {
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
-                    primary={activity.message}
+                    primary={
+                      <Box display="flex" alignItems="center" justifyContent="space-between">
+                        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                          {activity.message}
+                        </Typography>
+                        {activity.priority === 'high' && (
+                          <Badge color="error" variant="dot" />
+                        )}
+                      </Box>
+                    }
                     secondary={activity.time}
                     primaryTypographyProps={{
-                      fontSize: '0.9rem',
-                      fontWeight: 'medium'
+                      fontSize: '0.875rem'
                     }}
                     secondaryTypographyProps={{
-                      fontSize: '0.8rem'
+                      fontSize: '0.75rem'
                     }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
+        </Grid>
+
+        {/* Upcoming Tasks */}
+        <Grid item xs={12} lg={4}>
+          <Paper sx={{ p: 3, borderRadius: 2 }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', mb: 3 }}>
+              Upcoming Tasks
+            </Typography>
+            <List>
+              {upcomingTasks.map((task, index) => (
+                <ListItem key={index} sx={{ px: 0, py: 1 }}>
+                  <ListItemText
+                    primary={
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 'medium', mb: 0.5 }}>
+                          {task.title}
+                        </Typography>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Chip
+                            label={task.priority}
+                            size="small"
+                            sx={{
+                              backgroundColor: task.priority === 'high' ? '#DC143C15' :
+                                             task.priority === 'medium' ? '#FF980015' : '#4CAF5015',
+                              color: task.priority === 'high' ? '#DC143C' :
+                                     task.priority === 'medium' ? '#FF9800' : '#4CAF50',
+                              fontSize: '0.7rem',
+                              height: 20
+                            }}
+                          />
+                          <Typography variant="caption" color="text.secondary">
+                            Due: {task.due}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    }
+                    secondary={
+                      <Typography variant="caption" color="text.secondary">
+                        Assigned to: {task.assignee}
+                      </Typography>
+                    }
                   />
                 </ListItem>
               ))}

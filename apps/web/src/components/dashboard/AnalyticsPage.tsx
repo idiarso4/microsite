@@ -51,7 +51,15 @@ import {
   ShoppingCart,
   LocalShipping,
   Business,
-  Refresh
+  Refresh,
+  Dashboard,
+  DataUsage,
+  PieChart as PieChartIcon,
+  BarChart as BarChartIcon,
+  TableChart,
+  FilterList,
+  DateRange,
+  CloudDownload
 } from '@mui/icons-material'
 import { apiService } from '../../services/api'
 
@@ -316,6 +324,133 @@ export default function AnalyticsPage() {
           </Button>
         </Box>
       </Box>
+
+      {/* Business Intelligence Section */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ p: 3, background: 'linear-gradient(135deg, #795548 0%, #5D4037 100%)', color: 'white' }}>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+              Advanced Business Intelligence
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, opacity: 0.9 }}>
+              Dapatkan insights mendalam dengan dashboard analytics yang powerful.
+              Real-time reports, data visualization, dan KPI tracking untuk decision making yang tepat.
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    color: 'white',
+                    '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' }
+                  }}
+                  startIcon={<Dashboard />}
+                >
+                  Custom Dashboards
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<Assessment />}
+                >
+                  Real-time Reports
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<DataUsage />}
+                >
+                  Data Analytics
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<Speed />}
+                >
+                  KPI Tracking
+                </Button>
+              </Grid>
+            </Grid>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 3, height: '100%' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+              BI Features
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Dashboard sx={{ color: '#795548' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Custom Dashboards
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Personalized analytics views
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Assessment sx={{ color: '#2196F3' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Real-time Reports
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Live data & instant insights
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <DataUsage sx={{ color: '#4CAF50' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Data Analytics
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Advanced data processing
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Speed sx={{ color: '#FF9800' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    KPI Tracking
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Performance monitoring
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* KPI Metrics */}
       <Grid container spacing={3} mb={4}>

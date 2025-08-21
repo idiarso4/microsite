@@ -37,7 +37,16 @@ import {
   LocalShipping,
   Download,
   MoreVert,
-  Visibility
+  Visibility,
+  Build,
+  Engineering,
+  Precision,
+  Assignment,
+  Schedule,
+  CheckCircle,
+  Warning,
+  Factory,
+  Settings
 } from '@mui/icons-material'
 import { apiService } from '../../services/api'
 import OrderForm, { OrderFormData } from '../forms/OrderForm'
@@ -249,10 +258,10 @@ export default function OrdersPage() {
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Box>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#1A1A1A' }}>
-            Orders Management 🛒
+            Manufacturing & Orders 🏭
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Kelola pesanan dan transaksi pelanggan
+            Kelola produksi, quality control, dan order management
           </Typography>
         </Box>
         <Box display="flex" gap={2}>
@@ -292,6 +301,133 @@ export default function OrdersPage() {
           </Button>
         </Box>
       </Box>
+
+      {/* Manufacturing Section */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ p: 3, background: 'linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%)', color: 'white' }}>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+              Manufacturing & Production Control
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, opacity: 0.9 }}>
+              Kelola seluruh proses produksi dari planning hingga quality control.
+              Sistem manufacturing terintegrasi untuk efisiensi maksimal.
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    color: 'white',
+                    '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' }
+                  }}
+                  startIcon={<Factory />}
+                >
+                  Production Planning
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<CheckCircle />}
+                >
+                  Quality Control
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<Assignment />}
+                >
+                  Bill of Materials
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: 'white',
+                    '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  startIcon={<Build />}
+                >
+                  Work Orders
+                </Button>
+              </Grid>
+            </Grid>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 3, height: '100%' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+              Manufacturing Features
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Factory sx={{ color: '#9C27B0' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Production Planning
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Schedule & resource allocation
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CheckCircle sx={{ color: '#4CAF50' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Quality Control
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    QC checkpoints & standards
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Assignment sx={{ color: '#2196F3' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Bill of Materials
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Component & recipe management
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Build sx={{ color: '#FF9800' }} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    Work Orders
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Production job tracking
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* Stats Cards */}
       <Grid container spacing={3} mb={4}>
