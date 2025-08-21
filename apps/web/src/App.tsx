@@ -6,6 +6,7 @@ import HashMicroStyleLanding from './components/HashMicroStyleLanding'
 import LoginPage from './components/auth/LoginPage'
 import RegisterPage from './components/auth/RegisterPage'
 import ForgotPasswordPage from './components/auth/ForgotPasswordPage'
+import DebugInfo from './components/common/DebugInfo'
 import AccountingLandingPage from './modules/accounting/AccountingLandingPage'
 import AccountingLoginPage from './modules/accounting/AccountingLoginPage'
 import InventoryLoginPage from './modules/inventory/InventoryLoginPage'
@@ -20,6 +21,7 @@ import ManufacturingLandingPage from './modules/manufacturing/ManufacturingLandi
 import ProcurementLandingPage from './modules/procurement/ProcurementLandingPage'
 import DashboardLayout from './components/dashboard/DashboardLayout'
 import DashboardOverview from './components/dashboard/DashboardOverview'
+import EnhancedDashboard from './components/dashboard/EnhancedDashboard'
 import CRMPage from './components/dashboard/CRMPage'
 import InventoryPage from './components/dashboard/InventoryPage'
 import OrdersPage from './components/dashboard/OrdersPage'
@@ -93,6 +95,13 @@ export default function App() {
           <Route path="/procurement/login" element={<ProcurementLoginPage />} />
           {/* Dashboard Routes */}
           <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <EnhancedDashboard />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/overview" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <DashboardOverview />
@@ -169,7 +178,18 @@ export default function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
+
+          {/* Handle common mistyped URLs */}
+          <Route path="/l" element={<Navigate to="/login" replace />} />
+          <Route path="/d" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/r" element={<Navigate to="/register" replace />} />
+
+          {/* Catch all route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+
+        {/* Debug Info - only shows in development */}
+        <DebugInfo />
       </AuthProvider>
     </ThemeProvider>
   )

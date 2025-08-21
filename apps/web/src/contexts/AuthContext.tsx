@@ -67,14 +67,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
 
         // Check for regular auth token using TokenService
-        const hasValidToken = await SessionService.ensureValidToken()
-        if (hasValidToken) {
-          const userData = await apiService.getProfile()
-          setUser(userData.user)
-          setIsDemoMode(false)
+        const token = TokenService.getAccessToken()
+        if (token && !TokenService.isTokenExpired()) {
+          try {
+            const userData = await apiService.getProfile()
+            setUser(userData.user)
+            setIsDemoMode(false)
 
-          // Start session monitoring
-          SessionService.startSessionMonitoring()
+            // Start session monitoring
+            SessionService.startSessionMonitoring()
+          } catch (error) {
+            console.error('Failed to get user profile:', error)
+            TokenService.clearTokens()
+          }
         }
       } catch (error) {
         console.error('Auth check failed:', error)

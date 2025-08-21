@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { usePermissions } from '../../hooks/usePermissions'
+import PermissionGuard from '../auth/PermissionGuard'
+import SessionInfo from '../auth/SessionInfo'
 import {
   Box,
   Drawer,
@@ -108,7 +111,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
   const navigate = useNavigate()
   const location = useLocation()
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
+  const { getAccessibleModules, canAccessModule } = usePermissions()
 
   // Sample notifications data
   const notifications = [
@@ -313,14 +317,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               mr: 2
             }}
           >
-            A
+            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
           </Avatar>
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-              Admin User
+              {user?.name || 'User'}
             </Typography>
             <Chip
-              label="Super Admin"
+              label={user?.role || 'User'}
               size="small"
               sx={{
                 height: 20,
@@ -330,6 +334,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               }}
             />
           </Box>
+        </Box>
+
+        {/* Session Info */}
+        <Box sx={{ mt: 2 }}>
+          <SessionInfo compact={true} showActions={false} />
         </Box>
       </Box>
     </Box>

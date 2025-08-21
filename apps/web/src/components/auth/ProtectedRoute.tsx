@@ -4,6 +4,8 @@ import { Box, CircularProgress, Typography } from '@mui/material'
 import { useAuth } from '../../contexts/AuthContext'
 import { UserRole, Permission } from '../../types/auth'
 import { usePermissions } from '../../hooks/usePermissions'
+import { AuthLoadingScreen } from '../common/LoadingScreen'
+import { AuthLoadingScreen } from '../common/LoadingScreen'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -36,21 +38,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Show loading spinner while checking authentication
   if (isLoading) {
-    return (
-      <Box 
-        display="flex" 
-        flexDirection="column"
-        justifyContent="center" 
-        alignItems="center" 
-        minHeight="100vh"
-        gap={2}
-      >
-        <CircularProgress size={60} sx={{ color: '#DC143C' }} />
-        <Typography variant="body1" color="text.secondary">
-          Checking authentication...
-        </Typography>
-      </Box>
-    )
+    return <AuthLoadingScreen message="Verifying your access..." />
   }
 
   // Redirect to login if not authenticated

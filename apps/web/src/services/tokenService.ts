@@ -207,8 +207,7 @@ export class SessionService {
       return await this.refreshToken()
     }
 
-    // No valid tokens and no refresh token
-    this.logout()
+    // No valid tokens and no refresh token - but don't auto logout
     return false
   }
 
