@@ -8,6 +8,8 @@ import AccountingLoginPage from './modules/accounting/AccountingLoginPage'
 import InventoryLandingPage from './modules/inventory/InventoryLandingPage'
 import HRLandingPage from './modules/hr/HRLandingPage'
 import CRMLandingPage from './modules/crm/CRMLandingPage'
+import ManufacturingLandingPage from './modules/manufacturing/ManufacturingLandingPage'
+import ProcurementLandingPage from './modules/procurement/ProcurementLandingPage'
 import DashboardLayout from './components/dashboard/DashboardLayout'
 import DashboardOverview from './components/dashboard/DashboardOverview'
 import CRMPage from './components/dashboard/CRMPage'
@@ -68,12 +70,16 @@ export default function App() {
           <Route path="/inventory" element={<InventoryLandingPage />} />
           <Route path="/hr" element={<HRLandingPage />} />
           <Route path="/crm" element={<CRMLandingPage />} />
+          <Route path="/manufacturing" element={<ManufacturingLandingPage />} />
+          <Route path="/procurement" element={<ProcurementLandingPage />} />
 
           {/* Module Login Pages */}
           <Route path="/accounting/login" element={<AccountingLoginPage />} />
           <Route path="/inventory/login" element={<LoginPage />} />
           <Route path="/hr/login" element={<LoginPage />} />
           <Route path="/crm/login" element={<LoginPage />} />
+          <Route path="/manufacturing/login" element={<LoginPage />} />
+          <Route path="/procurement/login" element={<LoginPage />} />
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <DashboardLayout>
