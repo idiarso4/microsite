@@ -1,3 +1,5 @@
+import { TokenService, SessionService } from './tokenService'
+
 const API_BASE_URL = 'http://localhost:3001/api'
 
 // API service class
@@ -9,8 +11,11 @@ class ApiService {
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    // Ensure we have a valid token before making the request
+    const hasValidToken = await SessionService.ensureValidToken()
+
     const url = `${this.baseURL}${endpoint}`
-    
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -20,8 +25,8 @@ class ApiService {
     }
 
     // Add auth token if available
-    const token = localStorage.getItem('auth_token')
-    if (token) {
+    const token = TokenService.getAccessToken()
+    if (token && hasValidToken) {
       config.headers = {
         ...config.headers,
         Authorization: `Bearer ${token}`,
@@ -30,7 +35,12 @@ class ApiService {
 
     try {
       const response = await fetch(url, config)
-      
+
+      // Handle session-related responses
+      if (!SessionService.handleApiResponse(response)) {
+        throw new Error('Session expired')
+      }
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
@@ -77,11 +87,34 @@ class ApiService {
   }
 
   async logout() {
-    const token = localStorage.getItem('auth_token')
-    if (token) {
-      localStorage.removeItem('auth_token')
+    try {
+      const token = TokenService.getAccessToken()
+      if (token) {
+        // Call logout endpoint to invalidate token on server
+        await this.request('/auth/logout', {
+          method: 'POST'
+        })
+      }
+    } catch (error) {
+      console.error('Logout API call failed:', error)
+      // Continue with local logout even if API call fails
+    } finally {
+      // Always clear local tokens
+      TokenService.clearTokens()
     }
     return Promise.resolve()
+  }
+
+  async refreshToken() {
+    const refreshToken = TokenService.getRefreshToken()
+    if (!refreshToken) {
+      throw new Error('No refresh token available')
+    }
+
+    return this.request('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    })
   }
 
   // Dashboard endpoints

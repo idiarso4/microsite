@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useAuth } from '../../contexts/AuthContext'
@@ -20,12 +20,12 @@ import {
   Stack,
   CircularProgress
 } from '@mui/material'
-import { Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material'
+import { Visibility, VisibilityOff, Email, Lock, PlayArrow } from '@mui/icons-material'
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { login, isLoading: authLoading } = useAuth()
+  const { login, loginDemo, isLoading: authLoading } = useAuth()
 
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -78,6 +78,11 @@ export default function LoginPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleDemoLogin = () => {
+    loginDemo()
+    navigate('/dashboard', { replace: true })
   }
 
   return (
@@ -161,6 +166,30 @@ export default function LoginPage() {
               {error}
             </Alert>
           )}
+
+          {/* Demo Mode Button */}
+          <Button
+            fullWidth
+            variant="outlined"
+            size="large"
+            startIcon={<PlayArrow />}
+            onClick={handleDemoLogin}
+            sx={{
+              mb: 3,
+              py: 1.5,
+              borderColor: '#f97316',
+              color: '#f97316',
+              '&:hover': {
+                borderColor: '#ea580c',
+                backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 20px rgba(249, 115, 22, 0.3)'
+              },
+              transition: 'all 0.3s ease'
+            }}
+          >
+            Coba Demo Gratis
+          </Button>
 
           {/* Demo Credentials Info */}
           <Alert severity="info" sx={{ mb: 3 }}>
@@ -248,7 +277,8 @@ export default function LoginPage() {
 
             <Stack spacing={2}>
               <Link
-                href="#"
+                component={RouterLink}
+                to="/forgot-password"
                 variant="body2"
                 sx={{
                   textAlign: 'center',
@@ -265,7 +295,8 @@ export default function LoginPage() {
               <Typography variant="body2" textAlign="center" color="text.secondary">
                 Belum punya akun?{' '}
                 <Link
-                  href="#"
+                  component={RouterLink}
+                  to="/register"
                   sx={{
                     color: '#DC143C',
                     textDecoration: 'none',

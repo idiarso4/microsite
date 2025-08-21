@@ -4,6 +4,8 @@ import { Routes, Route } from 'react-router-dom'
 import ComprehensiveLandingPage from './components/ComprehensiveLandingPage'
 import HashMicroStyleLanding from './components/HashMicroStyleLanding'
 import LoginPage from './components/auth/LoginPage'
+import RegisterPage from './components/auth/RegisterPage'
+import ForgotPasswordPage from './components/auth/ForgotPasswordPage'
 import AccountingLandingPage from './modules/accounting/AccountingLandingPage'
 import AccountingLoginPage from './modules/accounting/AccountingLoginPage'
 import InventoryLoginPage from './modules/inventory/InventoryLoginPage'
@@ -71,6 +73,8 @@ export default function App() {
           <Route path="/" element={<HashMicroStyleLanding />} />
           <Route path="/old" element={<ComprehensiveLandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           {/* Module Landing Pages */}
           <Route path="/accounting" element={<AccountingLandingPage />} />
