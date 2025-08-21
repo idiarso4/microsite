@@ -5,7 +5,6 @@ import { useAuth } from '../../contexts/AuthContext'
 import { UserRole, Permission } from '../../types/auth'
 import { usePermissions } from '../../hooks/usePermissions'
 import { AuthLoadingScreen } from '../common/LoadingScreen'
-import { AuthLoadingScreen } from '../common/LoadingScreen'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
