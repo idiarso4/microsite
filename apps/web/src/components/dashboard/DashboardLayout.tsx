@@ -54,64 +54,50 @@ const menuCategories = [
   {
     title: 'Manajemen SDM',
     items: [
-      { text: 'Karyawan', icon: <People />, path: '/hr', active: true },
-      { text: 'Payroll', icon: <MonetizationOn />, path: '/hr/payroll', active: false },
+      { text: 'Karyawan', icon: <People />, path: '/dashboard/hr', active: true },
+      { text: 'Payroll', icon: <MonetizationOn />, path: '/dashboard/hr/payroll', active: false },
     ]
   },
   {
     title: 'Manajemen Produksi',
     items: [
-      { text: 'Manufacturing', icon: <Settings />, path: '/orders', active: true },
-      { text: 'Quality Control', icon: <Assessment />, path: '/quality', active: false },
+      { text: 'Manufacturing', icon: <Settings />, path: '/dashboard/orders', active: true },
+      { text: 'Quality Control', icon: <Assessment />, path: '/dashboard/quality', active: false },
     ]
   },
   {
-    title: 'Manajemen Konstruksi',
+    title: 'Akuntansi & Keuangan',
     items: [
-      { text: 'Project Management', icon: <Business />, path: '/projects', active: false },
-      { text: 'Resource Planning', icon: <LocalShipping />, path: '/resources', active: false },
+      { text: 'Akuntansi', icon: <MonetizationOn />, path: '/dashboard/finance', active: true, highlight: true },
+      { text: 'Laporan Keuangan', icon: <Assessment />, path: '/dashboard/finance/reports', active: false },
     ]
   },
   {
     title: 'e-Procurement',
     items: [
-      { text: 'Pembelian', icon: <LocalShipping />, path: '/procurement', active: true },
-      { text: 'Vendor Management', icon: <Business />, path: '/vendors', active: false },
+      { text: 'Pembelian', icon: <LocalShipping />, path: '/dashboard/procurement', active: true, highlight: true },
+      { text: 'Vendor Management', icon: <Business />, path: '/dashboard/vendors', active: false },
     ]
   },
   {
     title: 'CRM & Sales',
     items: [
-      { text: 'CRM & Sales', icon: <Business />, path: '/crm', active: true },
-      { text: 'Sales Pipeline', icon: <TrendingUp />, path: '/sales', active: false },
+      { text: 'CRM & Sales', icon: <Business />, path: '/dashboard/crm', active: true, highlight: true },
+      { text: 'Sales Pipeline', icon: <TrendingUp />, path: '/dashboard/sales', active: false },
     ]
   },
   {
     title: 'Manajemen Inventaris',
     items: [
-      { text: 'Inventory', icon: <Inventory />, path: '/inventory', active: true, highlight: true },
-      { text: 'Stock Management', icon: <Inventory />, path: '/stock', active: false },
-    ]
-  },
-  {
-    title: 'Digitalisasi Pertambangan',
-    items: [
-      { text: 'Mining Operations', icon: <Settings />, path: '/mining', active: false },
-      { text: 'Equipment Tracking', icon: <LocalShipping />, path: '/equipment', active: false },
-    ]
-  },
-  {
-    title: 'Agribisnis Modern',
-    items: [
-      { text: 'Farm Management', icon: <Settings />, path: '/farm', active: false },
-      { text: 'Crop Planning', icon: <Assessment />, path: '/crops', active: false },
+      { text: 'Inventory', icon: <Inventory />, path: '/dashboard/inventory', active: true, highlight: true },
+      { text: 'Stock Management', icon: <Inventory />, path: '/dashboard/stock', active: false },
     ]
   },
   {
     title: 'Trading & Distribution',
     items: [
-      { text: 'Orders', icon: <ShoppingCart />, path: '/orders', active: true },
-      { text: 'Distribution', icon: <LocalShipping />, path: '/distribution', active: false },
+      { text: 'Orders', icon: <ShoppingCart />, path: '/dashboard/orders', active: true },
+      { text: 'Distribution', icon: <LocalShipping />, path: '/dashboard/distribution', active: false },
     ]
   }
 ]

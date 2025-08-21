@@ -53,9 +53,7 @@ import {
   Settings,
   Print
 } from '@mui/icons-material'
-import { apiService } from '../../services/api'
-import ProductForm from '../forms/ProductForm'
-import { ProductFormData } from '../../utils/validationSchemas'
+import { inventoryApi, Product, Warehouse as WarehouseType, StockLevel } from '../../services/modules'
 
 
 
@@ -90,61 +88,62 @@ const getStatusIcon = (status: string) => {
 }
 
 export default function InventoryPage() {
-  const [productsData, setProductsData] = useState<any>(null)
+  const [products, setProducts] = useState<Product[]>([])
+  const [stockLevels, setStockLevels] = useState<StockLevel[]>([])
+  const [warehouses, setWarehouses] = useState<WarehouseType[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [selectedProduct, setSelectedProduct] = useState<any>(null)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<any>(null)
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const fetchProductsData = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true)
-      const data = await apiService.getProducts({ limit: 10 })
-      setProductsData(data)
+
+      // Fetch products, stock levels, and warehouses in parallel
+      const [productsResponse, stockResponse, warehousesResponse] = await Promise.all([
+        inventoryApi.getProducts({ page: 1, per_page: 50 }),
+        inventoryApi.getStock({ page: 1, per_page: 50 }),
+        inventoryApi.getWarehouses({ page: 1, per_page: 20 })
+      ])
+
+      if (productsResponse.success && productsResponse.data) {
+        setProducts(productsResponse.data.data)
+      }
+
+      if (stockResponse.success && stockResponse.data) {
+        setStockLevels(stockResponse.data.data)
+      }
+
+      if (warehousesResponse.success && warehousesResponse.data) {
+        setWarehouses(warehousesResponse.data.data)
+      }
+
       setError(null)
     } catch (err) {
-      console.error('Failed to fetch products data:', err)
-      setError('Failed to load products data')
+      console.error('Failed to fetch inventory data:', err)
+      setError('Failed to load inventory data')
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchProductsData()
+    fetchData()
   }, [])
 
-  const handleCreateProduct = async (data: ProductFormData) => {
-    try {
-      await apiService.createProduct(data)
-      setSnackbar({ open: true, message: 'Produk berhasil ditambahkan!', severity: 'success' })
-      fetchProductsData()
-    } catch (error: any) {
-      setSnackbar({ open: true, message: error.message || 'Gagal menambahkan produk', severity: 'error' })
-      throw error
-    }
-  }
-
-  const handleUpdateProduct = async (data: ProductFormData) => {
-    try {
-      await apiService.updateProduct(editingProduct.id, data)
-      setSnackbar({ open: true, message: 'Produk berhasil diperbarui!', severity: 'success' })
-      fetchProductsData()
-    } catch (error: any) {
-      setSnackbar({ open: true, message: error.message || 'Gagal memperbarui produk', severity: 'error' })
-      throw error
-    }
-  }
-
-  const handleDeleteProduct = async (productId: number) => {
+  const handleDeleteProduct = async (productId: string) => {
     if (window.confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
       try {
-        await apiService.deleteProduct(productId)
-        setSnackbar({ open: true, message: 'Produk berhasil dihapus!', severity: 'success' })
-        fetchProductsData()
+        const response = await inventoryApi.deleteProduct(productId)
+        if (response.success) {
+          setSnackbar({ open: true, message: 'Produk berhasil dihapus!', severity: 'success' })
+          fetchData()
+        } else {
+          setSnackbar({ open: true, message: response.error || 'Gagal menghapus produk', severity: 'error' })
+        }
       } catch (error: any) {
         setSnackbar({ open: true, message: error.message || 'Gagal menghapus produk', severity: 'error' })
       }
@@ -155,7 +154,7 @@ export default function InventoryPage() {
     window.open('http://localhost:3001/api/products/export', '_blank')
   }
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, product: any) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, product: Product) => {
     setAnchorEl(event.currentTarget)
     setSelectedProduct(product)
   }
@@ -165,18 +164,30 @@ export default function InventoryPage() {
     setSelectedProduct(null)
   }
 
-  const handleEdit = () => {
-    setEditingProduct(selectedProduct)
-    setFormOpen(true)
-    handleMenuClose()
-  }
-
   const handleDelete = () => {
     if (selectedProduct) {
       handleDeleteProduct(selectedProduct.id)
     }
     handleMenuClose()
   }
+
+  // Calculate inventory statistics
+  const lowStockProducts = products.filter(p => p.current_stock <= p.minimum_stock)
+  const totalValue = products.reduce((sum, p) => sum + (p.selling_price * p.current_stock), 0)
+
+  // Get product status based on stock level
+  const getProductStatus = (product: Product) => {
+    if (product.current_stock === 0) return 'out_of_stock'
+    if (product.current_stock <= product.minimum_stock * 0.5) return 'critical'
+    if (product.current_stock <= product.minimum_stock) return 'low_stock'
+    return 'in_stock'
+  }
+
+  // Filter products based on search
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.sku.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   if (loading) {
     return (
@@ -202,7 +213,7 @@ export default function InventoryPage() {
   const inventoryStats = [
     {
       title: 'Total Products',
-      value: productsData?.products?.length?.toString() || '0',
+      value: products.length.toString(),
       change: '+8.2%',
       trend: 'up',
       icon: <Inventory />,
@@ -210,23 +221,23 @@ export default function InventoryPage() {
     },
     {
       title: 'Low Stock Items',
-      value: productsData?.products?.filter((p: any) => p.stock <= p.minStock)?.length?.toString() || '0',
-      change: '-12.5%',
-      trend: 'down',
+      value: lowStockProducts.length.toString(),
+      change: lowStockProducts.length > 0 ? '+12.5%' : '-12.5%',
+      trend: lowStockProducts.length > 0 ? 'up' : 'down',
       icon: <Warning />,
       color: '#FF9800'
     },
     {
-      title: 'Categories',
-      value: '4',
+      title: 'Warehouses',
+      value: warehouses.length.toString(),
       change: '+3.1%',
       trend: 'up',
-      icon: <Category />,
+      icon: <Warehouse />,
       color: '#1A1A1A'
     },
     {
       title: 'Total Value',
-      value: `Rp ${(productsData?.products?.reduce((sum: number, p: any) => sum + (p.price * p.stock), 0) || 0).toLocaleString()}`,
+      value: `Rp ${totalValue.toLocaleString('id-ID')}`,
       change: '+15.7%',
       trend: 'up',
       icon: <TrendingUp />,
@@ -280,8 +291,7 @@ export default function InventoryPage() {
             variant="contained"
             startIcon={<Add />}
             onClick={() => {
-              setEditingProduct(null)
-              setFormOpen(true)
+              setSnackbar({ open: true, message: 'Add Product feature coming soon!', severity: 'info' })
             }}
             sx={{
               background: 'linear-gradient(135deg, #DC143C 0%, #1A1A1A 100%)',
@@ -541,6 +551,8 @@ export default function InventoryPage() {
             <TextField
               size="small"
               placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -566,64 +578,85 @@ export default function InventoryPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(productsData?.products || []).map((product: any) => (
-                <TableRow key={product.id} hover>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                      {product.name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      ID: {product.id}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                      {product.sku}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{product.category?.name}</TableCell>
-                  <TableCell>
-                    <Box>
+              {filteredProducts.map((product) => {
+                const status = getProductStatus(product)
+                return (
+                  <TableRow key={product.id} hover>
+                    <TableCell>
                       <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                        {product.stock} units
+                        {product.name}
                       </Typography>
-                      <LinearProgress
-                        variant="determinate"
-                        value={(product.stock / (product.minStock * 3)) * 100}
+                      <Typography variant="caption" color="text.secondary">
+                        {product.description || 'No description'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                        {product.sku}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        {product.category?.name || 'Uncategorized'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                          {product.current_stock} {product.unit_of_measure}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Min: {product.minimum_stock}
+                        </Typography>
+                        <LinearProgress
+                          variant="determinate"
+                          value={Math.min((product.current_stock / (product.minimum_stock * 3)) * 100, 100)}
+                          sx={{
+                            height: 4,
+                            borderRadius: 2,
+                            backgroundColor: '#e0e0e0',
+                            '& .MuiLinearProgress-bar': {
+                              backgroundColor: getStatusColor(status)
+                            }
+                          }}
+                        />
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        icon={getStatusIcon(status)}
+                        label={getStatusLabel(status)}
+                        size="small"
                         sx={{
-                          height: 4,
-                          borderRadius: 2,
-                          backgroundColor: '#e0e0e0',
-                          '& .MuiLinearProgress-bar': {
-                            backgroundColor: getStatusColor(product.status)
-                          }
+                          backgroundColor: `${getStatusColor(status)}15`,
+                          color: getStatusColor(status),
+                          fontWeight: 'medium'
                         }}
                       />
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      icon={getStatusIcon(product.status)}
-                      label={getStatusLabel(product.status)}
-                      size="small"
-                      sx={{
-                        backgroundColor: `${getStatusColor(product.status)}15`,
-                        color: getStatusColor(product.status),
-                        fontWeight: 'medium'
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 'medium' }}>Rp {product.price?.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      size="small"
-                      onClick={(e) => handleMenuOpen(e, product)}
-                    >
-                      <MoreVert fontSize="small" />
-                    </IconButton>
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'medium' }}>
+                      Rp {product.selling_price.toLocaleString('id-ID')}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => handleMenuOpen(e, product)}
+                      >
+                        <MoreVert fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+              {filteredProducts.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {searchTerm ? 'No products found matching your search' : 'No products available'}
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>
@@ -635,7 +668,10 @@ export default function InventoryPage() {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={handleEdit}>
+        <MenuItem onClick={() => {
+          setSnackbar({ open: true, message: 'Edit feature coming soon!', severity: 'info' })
+          handleMenuClose()
+        }}>
           <Edit sx={{ mr: 1, fontSize: 18 }} />
           Edit Product
         </MenuItem>
@@ -643,19 +679,14 @@ export default function InventoryPage() {
           <Delete sx={{ mr: 1, fontSize: 18, color: '#f44336' }} />
           Delete Product
         </MenuItem>
+        <MenuItem onClick={() => {
+          setSnackbar({ open: true, message: 'View details feature coming soon!', severity: 'info' })
+          handleMenuClose()
+        }}>
+          <Analytics sx={{ mr: 1, fontSize: 18 }} />
+          View Details
+        </MenuItem>
       </Menu>
-
-      {/* Product Form Dialog */}
-      <ProductForm
-        open={formOpen}
-        onClose={() => {
-          setFormOpen(false)
-          setEditingProduct(null)
-        }}
-        onSubmit={editingProduct ? handleUpdateProduct : handleCreateProduct}
-        initialData={editingProduct}
-        title={editingProduct ? 'Edit Product' : 'Add New Product'}
-      />
 
       {/* Snackbar for notifications */}
       <Snackbar

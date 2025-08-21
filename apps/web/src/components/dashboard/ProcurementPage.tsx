@@ -40,10 +40,11 @@ import {
   Delete,
   Print
 } from '@mui/icons-material'
-import { apiService } from '../../services/api'
+import { procurementApi, Vendor, PurchaseOrder } from '../../services/modules'
 
 export default function ProcurementPage() {
-  const [procurementData, setProcurementData] = useState<any>(null)
+  const [vendors, setVendors] = useState<Vendor[]>([])
+  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -51,22 +52,34 @@ export default function ProcurementPage() {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchProcurementData()
-    }, 500) // 500ms debounce
+    fetchProcurementData()
+  }, [])
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      // Filter data locally for now
+    }, 500)
     return () => clearTimeout(timeoutId)
   }, [searchTerm, statusFilter])
 
   const fetchProcurementData = async () => {
     try {
       setLoading(true)
-      const params: any = { limit: 20 }
-      if (searchTerm) params.search = searchTerm
-      if (statusFilter) params.status = statusFilter
 
-      const data = await apiService.getPurchases(params)
-      setProcurementData(data)
+      // Fetch vendors and purchase orders in parallel
+      const [vendorsResponse, purchaseOrdersResponse] = await Promise.all([
+        procurementApi.getVendors({ page: 1, per_page: 50 }),
+        procurementApi.getPurchaseOrders({ page: 1, per_page: 50 })
+      ])
+
+      if (vendorsResponse.success && vendorsResponse.data) {
+        setVendors(vendorsResponse.data.data)
+      }
+
+      if (purchaseOrdersResponse.success && purchaseOrdersResponse.data) {
+        setPurchaseOrders(purchaseOrdersResponse.data.data)
+      }
+
       setError(null)
     } catch (err: any) {
       console.error('Failed to fetch procurement data:', err)
@@ -86,40 +99,53 @@ export default function ProcurementPage() {
     }
   }
 
+  // Calculate procurement statistics
+  const pendingOrders = purchaseOrders.filter(po => po.status === 'pending' || po.status === 'draft')
+  const totalValue = purchaseOrders.reduce((sum, po) => sum + po.total_amount, 0)
+
   const procurementStats = [
     {
-      title: 'Total Purchases',
-      value: (procurementData?.pagination?.total || 0).toString(),
-      change: '+8.2%',
+      title: 'Total Orders',
+      value: purchaseOrders.length.toString(),
+      change: '+15.2%',
       trend: 'up',
-      icon: <LocalShipping />,
+      icon: <Assignment />,
       color: '#DC143C'
     },
     {
       title: 'Pending Orders',
-      value: (procurementData?.purchases?.filter((p: any) => p.status === 'pending')?.length || 0).toString(),
-      change: '+5.1%',
-      trend: 'up',
-      icon: <Assignment />,
+      value: pendingOrders.length.toString(),
+      change: pendingOrders.length > 0 ? '+8.1%' : '-8.1%',
+      trend: pendingOrders.length > 0 ? 'up' : 'down',
+      icon: <LocalShipping />,
       color: '#FF9800'
     },
     {
       title: 'Total Value',
-      value: `Rp ${(procurementData?.purchases?.reduce((sum: number, p: any) => sum + (p.totalAmount || 0), 0) || 0).toLocaleString()}`,
+      value: `Rp ${totalValue.toLocaleString('id-ID')}`,
       change: '+12.3%',
       trend: 'up',
       icon: <AttachMoney />,
       color: '#4CAF50'
     },
     {
-      title: 'Suppliers',
-      value: new Set(procurementData?.purchases?.map((p: any) => p.supplierName) || []).size.toString(),
+      title: 'Active Vendors',
+      value: vendors.filter(v => v.status === 'active').length.toString(),
       change: '+2',
       trend: 'up',
       icon: <Inventory />,
       color: '#1A1A1A'
     }
   ]
+
+  // Filter purchase orders based on search and status
+  const filteredPurchaseOrders = purchaseOrders.filter(po => {
+    const matchesSearch = !searchTerm ||
+      po.po_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      po.vendor?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStatus = !statusFilter || po.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
 
   if (loading) {
     return (

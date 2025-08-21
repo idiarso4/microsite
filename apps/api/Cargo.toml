@@ -34,6 +34,7 @@ serde_json = { workspace = true }
 # UUID and time
 uuid = { workspace = true }
 chrono = { workspace = true }
+rust_decimal = { version = "1.36", features = ["serde"] }
 
 # Validation
 validator = { workspace = true }

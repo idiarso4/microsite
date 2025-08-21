@@ -325,3 +325,6 @@ export default function InventoryLandingPage() {
           </Grid>
         </Container>
       </Box>
+    </Box>
+  )
+}

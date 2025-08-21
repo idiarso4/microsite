@@ -15,7 +15,7 @@ import {
   FormControlLabel
 } from '@mui/material'
 import {
-  AccountBalance,
+  People,
   Visibility,
   VisibilityOff,
   ArrowBack
@@ -23,7 +23,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
-export default function AccountingLoginPage() {
+export default function HRLoginPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
   const [email, setEmail] = useState('')
@@ -40,7 +40,7 @@ export default function AccountingLoginPage() {
 
     try {
       await login(email, password)
-      navigate('/dashboard/finance')
+      navigate('/dashboard/hr')
     } catch (err: any) {
       setError(err.message || 'Login failed')
     } finally {
@@ -49,43 +49,43 @@ export default function AccountingLoginPage() {
   }
 
   return (
-    <Box sx={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)',
+    <Box sx={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       p: 2
     }}>
       <Container maxWidth="sm">
-        <Card sx={{
+        <Card sx={{ 
           borderRadius: 3,
           boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
           overflow: 'hidden'
         }}>
           {/* Header */}
-          <Box sx={{
-            background: 'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)',
+          <Box sx={{ 
+            background: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
             color: 'white',
             p: 4,
             textAlign: 'center'
           }}>
-            <Box sx={{
-              display: 'flex',
-              alignItems: 'center',
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
               justifyContent: 'center',
               mb: 2
             }}>
-              <AccountBalance sx={{ fontSize: 48, mr: 2 }} />
+              <People sx={{ fontSize: 48, mr: 2 }} />
               <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-                Accounting
+                HR
               </Typography>
             </Box>
             <Typography variant="h6" sx={{ opacity: 0.9 }}>
-              Financial Management System
+              Human Resources Management
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.8, mt: 1 }}>
-              Kelola keuangan dan akuntansi perusahaan
+              Kelola SDM dengan sistem yang terintegrasi
             </Typography>
           </Box>
 
@@ -93,22 +93,22 @@ export default function AccountingLoginPage() {
             {/* Back Button */}
             <Button
               startIcon={<ArrowBack />}
-              onClick={() => navigate('/accounting')}
-              sx={{
+              onClick={() => navigate('/hr')}
+              sx={{ 
                 mb: 3,
-                color: '#4CAF50',
-                '&:hover': { backgroundColor: 'rgba(76, 175, 80, 0.04)' }
+                color: '#E91E63',
+                '&:hover': { backgroundColor: 'rgba(233, 30, 99, 0.04)' }
               }}
             >
-              Back to Accounting Info
+              Back to HR Info
             </Button>
 
-            <Typography variant="h5" gutterBottom sx={{
+            <Typography variant="h5" gutterBottom sx={{ 
               fontWeight: 'bold',
               color: '#333',
               mb: 3
             }}>
-              Login to Accounting System
+              Login to HR System
             </Typography>
 
             {error && (
@@ -130,11 +130,11 @@ export default function AccountingLoginPage() {
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       '&.Mui-focused fieldset': {
-                        borderColor: '#4CAF50',
+                        borderColor: '#E91E63',
                       },
                     },
                     '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#4CAF50',
+                      color: '#E91E63',
                     },
                   }}
                 />
@@ -150,11 +150,11 @@ export default function AccountingLoginPage() {
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       '&.Mui-focused fieldset': {
-                        borderColor: '#4CAF50',
+                        borderColor: '#E91E63',
                       },
                     },
                     '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#4CAF50',
+                      color: '#E91E63',
                     },
                   }}
                 />
@@ -166,16 +166,16 @@ export default function AccountingLoginPage() {
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
                         sx={{
-                          color: '#4CAF50',
+                          color: '#E91E63',
                           '&.Mui-checked': {
-                            color: '#4CAF50',
+                            color: '#E91E63',
                           },
                         }}
                       />
                     }
                     label="Remember me"
                   />
-                  <Link href="#" sx={{ color: '#4CAF50', textDecoration: 'none' }}>
+                  <Link href="#" sx={{ color: '#E91E63', textDecoration: 'none' }}>
                     Forgot password?
                   </Link>
                 </Box>
@@ -187,19 +187,19 @@ export default function AccountingLoginPage() {
                   size="large"
                   disabled={loading}
                   sx={{
-                    background: 'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)',
+                    background: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
                     py: 1.5,
                     fontSize: '1.1rem',
                     fontWeight: 'bold',
                     '&:hover': {
-                      background: 'linear-gradient(135deg, #388E3C 0%, #2E7D32 100%)',
+                      background: 'linear-gradient(135deg, #C2185B 0%, #AD1457 100%)',
                     },
                     '&:disabled': {
                       background: '#ccc',
                     }
                   }}
                 >
-                  {loading ? 'Signing In...' : 'Sign In to Accounting'}
+                  {loading ? 'Signing In...' : 'Sign In to HR'}
                 </Button>
               </Stack>
             </form>
@@ -209,17 +209,17 @@ export default function AccountingLoginPage() {
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
                 Don't have an account?{' '}
-                <Link href="#" sx={{ color: '#4CAF50', textDecoration: 'none' }}>
+                <Link href="#" sx={{ color: '#E91E63', textDecoration: 'none' }}>
                   Contact Sales
                 </Link>
               </Typography>
             </Box>
 
             {/* Demo Credentials */}
-            <Box sx={{
-              mt: 3,
-              p: 2,
-              backgroundColor: '#f8f9fa',
+            <Box sx={{ 
+              mt: 3, 
+              p: 2, 
+              backgroundColor: '#f8f9fa', 
               borderRadius: 2,
               border: '1px solid #e0e0e0'
             }}>
@@ -227,8 +227,8 @@ export default function AccountingLoginPage() {
                 Demo Credentials:
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Email: accounting@microsite.com<br />
-                Password: accounting123
+                Email: hr@microsite.com<br />
+                Password: hr123
               </Typography>
             </Box>
           </CardContent>
@@ -237,4 +237,3 @@ export default function AccountingLoginPage() {
     </Box>
   )
 }
-

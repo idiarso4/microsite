@@ -392,7 +392,18 @@ export default function ComprehensiveLandingPage() {
                           backgroundColor: '#DC143C',
                           '&:hover': { backgroundColor: '#B91C3C' }
                         }}
-                        onClick={() => navigate(`/login?demo=${solution.category.toLowerCase()}&redirect=${solution.demoPath}`)}
+                        onClick={() => {
+                          const moduleLoginRoutes = {
+                            'finance': '/accounting/login',
+                            'inventory': '/inventory/login',
+                            'hr': '/hr/login',
+                            'crm': '/crm/login',
+                            'manufacturing': '/manufacturing/login',
+                            'procurement': '/procurement/login'
+                          }
+                          const loginRoute = moduleLoginRoutes[solution.category.toLowerCase() as keyof typeof moduleLoginRoutes]
+                          navigate(loginRoute || '/login')
+                        }}
                       >
                         Try {solution.category} Demo
                       </Button>
@@ -419,7 +430,18 @@ export default function ComprehensiveLandingPage() {
                           backgroundColor: '#DC143C',
                           '&:hover': { backgroundColor: '#B91C3C' }
                         }}
-                        onClick={() => navigate(`/demo${solution.demoPath}`)}
+                        onClick={() => {
+                          const moduleLoginRoutes = {
+                            'finance': '/accounting/login',
+                            'inventory': '/inventory/login',
+                            'hr': '/hr/login',
+                            'crm': '/crm/login',
+                            'manufacturing': '/manufacturing/login',
+                            'procurement': '/procurement/login'
+                          }
+                          const loginRoute = moduleLoginRoutes[solution.category.toLowerCase() as keyof typeof moduleLoginRoutes]
+                          navigate(loginRoute || '/login')
+                        }}
                       >
                         Try {solution.category} Demo
                       </Button>

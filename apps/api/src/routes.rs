@@ -85,8 +85,9 @@ pub fn accounting_routes() -> Router<Arc<AppState>> {
     Router::new()
         .route("/accounts", get(handlers::accounting::list_accounts))
         .route("/accounts", axum::routing::post(handlers::accounting::create_account))
-        .route("/journals", get(handlers::accounting::list_journals))
-        .route("/journals", axum::routing::post(handlers::accounting::create_journal))
+        .route("/accounts/:id", get(handlers::accounting::get_account))
+        .route("/journal-entries", get(handlers::accounting::list_journal_entries))
+        .route("/journal-entries", axum::routing::post(handlers::accounting::create_journal_entry))
 
 }
 
@@ -117,6 +118,24 @@ pub fn docs_routes() -> Router<Arc<AppState>> {
             handlers::crm::get_contact,
             handlers::crm::update_contact,
             handlers::crm::delete_contact,
+            handlers::accounting::list_accounts,
+            handlers::accounting::create_account,
+            handlers::accounting::get_account,
+            handlers::accounting::list_journal_entries,
+            handlers::accounting::create_journal_entry,
+            handlers::inventory::list_products,
+            handlers::inventory::create_product,
+            handlers::inventory::get_product,
+            handlers::inventory::update_product,
+            handlers::inventory::delete_product,
+            handlers::inventory::list_warehouses,
+            handlers::inventory::create_warehouse,
+            handlers::inventory::list_stock,
+            handlers::inventory::list_stock_movements,
+            handlers::procurement::list_vendors,
+            handlers::procurement::create_vendor,
+            handlers::procurement::list_purchase_orders,
+            handlers::procurement::create_purchase_order,
         ),
         components(
             schemas(
@@ -131,6 +150,9 @@ pub fn docs_routes() -> Router<Arc<AppState>> {
             (name = "auth", description = "Authentication endpoints"),
             (name = "health", description = "Health check endpoints"),
             (name = "crm", description = "CRM endpoints"),
+            (name = "accounting", description = "Accounting endpoints"),
+            (name = "inventory", description = "Inventory endpoints"),
+            (name = "procurement", description = "Procurement endpoints"),
         )
     )]
     struct ApiDoc;

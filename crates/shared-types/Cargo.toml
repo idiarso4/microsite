@@ -12,3 +12,4 @@ uuid = { workspace = true }
 chrono = { workspace = true }
 validator = { workspace = true }
 utoipa = { workspace = true }
+rust_decimal = { version = "1.36", features = ["serde"] }

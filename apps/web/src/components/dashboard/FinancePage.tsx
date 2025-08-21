@@ -34,34 +34,38 @@ import {
   Add,
   Refresh
 } from '@mui/icons-material'
-import { apiService } from '../../services/api'
-import TransactionForm, { TransactionFormData } from '../forms/TransactionForm'
+import { accountingApi, Account, JournalEntry } from '../../services/modules'
 
 export default function FinancePage() {
-  const [financeData, setFinanceData] = useState<any>(null)
+  const [accounts, setAccounts] = useState<Account[]>([])
+  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState('')
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingTransaction, setEditingTransaction] = useState<any>(null)
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
 
   useEffect(() => {
     fetchFinanceData()
-  }, [statusFilter])
+  }, [])
 
   const fetchFinanceData = async () => {
     try {
       setLoading(true)
-      const [financeOverview, transactionsData] = await Promise.all([
-        apiService.getFinanceOverview(),
-        apiService.getFinanceTransactions({ limit: 10, status: statusFilter })
+
+      // Fetch accounts and journal entries in parallel
+      const [accountsResponse, journalEntriesResponse] = await Promise.all([
+        accountingApi.getAccounts({ page: 1, per_page: 100 }),
+        accountingApi.getJournalEntries({ page: 1, per_page: 50 })
       ])
 
-      setFinanceData({
-        ...financeOverview,
-        transactions: transactionsData.transactions || []
-      })
+      if (accountsResponse.success && accountsResponse.data) {
+        setAccounts(accountsResponse.data.data)
+      }
+
+      if (journalEntriesResponse.success && journalEntriesResponse.data) {
+        setJournalEntries(journalEntriesResponse.data.data)
+      }
+
       setError(null)
     } catch (err: any) {
       console.error('Failed to fetch finance data:', err)

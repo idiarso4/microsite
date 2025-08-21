@@ -181,13 +181,6 @@ class ApiService {
     return this.request(`/orders/${id}`)
   }
 
-  async createOrder(orderData: any) {
-    return this.request('/orders', {
-      method: 'POST',
-      body: JSON.stringify(orderData),
-    })
-  }
-
   async createOrder(data: any) {
     return this.request('/orders', {
       method: 'POST',
@@ -206,10 +199,6 @@ class ApiService {
     return this.request(`/orders/${id}`, {
       method: 'DELETE',
     })
-  }
-
-  async getOrder(id: number) {
-    return this.request(`/orders/${id}`)
   }
 
   async updateOrderStatus(id: number, status: string) {

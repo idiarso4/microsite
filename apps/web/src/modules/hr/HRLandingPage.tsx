@@ -411,3 +411,58 @@ export default function HRLandingPage() {
           </Grid>
         </Container>
       </Box>
+
+      {/* Contact Dialog */}
+      <Dialog open={contactDialog} onClose={() => setContactDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          Konsultasi Gratis HR Solution
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            Dapatkan konsultasi gratis untuk kebutuhan HR management perusahaan Anda.
+          </Typography>
+          <Stack spacing={2}>
+            <TextField
+              fullWidth
+              label="Nama Perusahaan"
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label="Nama Lengkap"
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label="Nomor Telepon"
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label="Jumlah Karyawan"
+              variant="outlined"
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setContactDialog(false)}>
+            Batal
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => setContactDialog(false)}
+            sx={{ backgroundColor: '#2196F3' }}
+          >
+            Kirim Permintaan
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  )
+}

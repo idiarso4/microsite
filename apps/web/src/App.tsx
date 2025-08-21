@@ -2,9 +2,15 @@ import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
 import { Routes, Route } from 'react-router-dom'
 import ComprehensiveLandingPage from './components/ComprehensiveLandingPage'
+import HashMicroStyleLanding from './components/HashMicroStyleLanding'
 import LoginPage from './components/auth/LoginPage'
 import AccountingLandingPage from './modules/accounting/AccountingLandingPage'
 import AccountingLoginPage from './modules/accounting/AccountingLoginPage'
+import InventoryLoginPage from './modules/inventory/InventoryLoginPage'
+import CRMLoginPage from './modules/crm/CRMLoginPage'
+import HRLoginPage from './modules/hr/HRLoginPage'
+import ManufacturingLoginPage from './modules/manufacturing/ManufacturingLoginPage'
+import ProcurementLoginPage from './modules/procurement/ProcurementLoginPage'
 import InventoryLandingPage from './modules/inventory/InventoryLandingPage'
 import HRLandingPage from './modules/hr/HRLandingPage'
 import CRMLandingPage from './modules/crm/CRMLandingPage'
@@ -62,7 +68,8 @@ export default function App() {
       <CssBaseline />
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<ComprehensiveLandingPage />} />
+          <Route path="/" element={<HashMicroStyleLanding />} />
+          <Route path="/old" element={<ComprehensiveLandingPage />} />
           <Route path="/login" element={<LoginPage />} />
 
           {/* Module Landing Pages */}
@@ -75,11 +82,12 @@ export default function App() {
 
           {/* Module Login Pages */}
           <Route path="/accounting/login" element={<AccountingLoginPage />} />
-          <Route path="/inventory/login" element={<LoginPage />} />
-          <Route path="/hr/login" element={<LoginPage />} />
-          <Route path="/crm/login" element={<LoginPage />} />
-          <Route path="/manufacturing/login" element={<LoginPage />} />
-          <Route path="/procurement/login" element={<LoginPage />} />
+          <Route path="/inventory/login" element={<InventoryLoginPage />} />
+          <Route path="/hr/login" element={<HRLoginPage />} />
+          <Route path="/crm/login" element={<CRMLoginPage />} />
+          <Route path="/manufacturing/login" element={<ManufacturingLoginPage />} />
+          <Route path="/procurement/login" element={<ProcurementLoginPage />} />
+          {/* Dashboard Routes */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <DashboardLayout>
@@ -87,42 +95,42 @@ export default function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          <Route path="/crm" element={
+          <Route path="/dashboard/crm" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <CRMPage />
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          <Route path="/inventory" element={
+          <Route path="/dashboard/inventory" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <InventoryPage />
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          <Route path="/orders" element={
+          <Route path="/dashboard/orders" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <OrdersPage />
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          <Route path="/finance" element={
+          <Route path="/dashboard/finance" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <FinancePage />
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          <Route path="/procurement" element={
+          <Route path="/dashboard/procurement" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <ProcurementPage />
               </DashboardLayout>
             </ProtectedRoute>
           } />
-          <Route path="/hr" element={
+          <Route path="/dashboard/hr" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <HRPage />
