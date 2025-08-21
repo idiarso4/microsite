@@ -39,7 +39,7 @@ import {
   Business,
   Analytics,
   CloudUpload,
-  Integration,
+  Hub,
   Support,
   CheckCircle,
   Star,
@@ -346,7 +346,7 @@ export default function ComprehensiveLandingPage() {
                 zIndex: 2
               }}
             >
-              <Integration sx={{ fontSize: 60 }} />
+              <Hub sx={{ fontSize: 60 }} />
               <Typography variant="h6" sx={{ mt: 1, fontWeight: 'bold' }}>
                 Integrated System
               </Typography>
@@ -468,7 +468,7 @@ export default function ComprehensiveLandingPage() {
                     mb: 3
                   }}
                 >
-                  <Integration sx={{ fontSize: 40, color: '#4CAF50' }} />
+                  <Hub sx={{ fontSize: 40, color: '#4CAF50' }} />
                 </Paper>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
                   Fully Integrated
