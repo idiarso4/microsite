@@ -1,8 +1,9 @@
+import React from 'react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import ComprehensiveLandingPage from './components/ComprehensiveLandingPage'
-import HashMicroStyleLanding from './components/HashMicroStyleLanding'
+import TechDevelopmentStyleLanding from './components/TechDevelopmentStyleLanding'
 import LoginPage from './components/auth/LoginPage'
 import RegisterPage from './components/auth/RegisterPage'
 import ForgotPasswordPage from './components/auth/ForgotPasswordPage'
@@ -22,18 +23,22 @@ import ProcurementLandingPage from './modules/procurement/ProcurementLandingPage
 import DashboardLayout from './components/dashboard/DashboardLayout'
 import DashboardOverview from './components/dashboard/DashboardOverview'
 import EnhancedDashboard from './components/dashboard/EnhancedDashboard'
-import CRMPage from './components/dashboard/CRMPage'
-import InventoryPage from './components/dashboard/InventoryPage'
-import OrdersPage from './components/dashboard/OrdersPage'
-import FinancePage from './components/dashboard/FinancePage'
+import CRMPageNew from './components/dashboard/CRMPageNew'
+import InventoryPageNew from './components/dashboard/InventoryPageNew'
+import OrdersPageNew from './components/dashboard/OrdersPageNew'
+import AccountingPageNew from './components/dashboard/AccountingPageNew'
 import ProcurementPage from './components/dashboard/ProcurementPage'
-import HRPage from './components/dashboard/HRPage'
+import ManufacturingPageNew from './components/dashboard/ManufacturingPageNew'
+import HRPageNew from './components/dashboard/HRPageNew'
 import AnalyticsPage from './components/dashboard/AnalyticsPage'
 import ReportsPage from './components/dashboard/ReportsPage'
 import SettingsPage from './components/dashboard/SettingsPage'
 import ProfilePage from './components/dashboard/ProfilePage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import { AuthProvider } from './contexts/AuthContext'
+import { initializeWebSocket } from './services/websocket'
+import ErrorBoundary from './components/common/ErrorBoundary'
+import { ToastProvider } from './components/common/ToastProvider'
 
 const theme = createTheme({
   palette: {
@@ -67,12 +72,19 @@ const theme = createTheme({
 })
 
 export default function App() {
+  // Initialize WebSocket when app starts
+  React.useEffect(() => {
+    initializeWebSocket()
+  }, [])
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<HashMicroStyleLanding />} />
+    <ErrorBoundary>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <ToastProvider>
+          <AuthProvider>
+            <Routes>
+          <Route path="/" element={<TechDevelopmentStyleLanding />} />
           <Route path="/old" element={<ComprehensiveLandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -111,28 +123,28 @@ export default function App() {
           <Route path="/dashboard/crm" element={
             <ProtectedRoute>
               <DashboardLayout>
-                <CRMPage />
+                <CRMPageNew />
               </DashboardLayout>
             </ProtectedRoute>
           } />
           <Route path="/dashboard/inventory" element={
             <ProtectedRoute>
               <DashboardLayout>
-                <InventoryPage />
+                <InventoryPageNew />
               </DashboardLayout>
             </ProtectedRoute>
           } />
           <Route path="/dashboard/orders" element={
             <ProtectedRoute>
               <DashboardLayout>
-                <OrdersPage />
+                <OrdersPageNew />
               </DashboardLayout>
             </ProtectedRoute>
           } />
           <Route path="/dashboard/finance" element={
             <ProtectedRoute>
               <DashboardLayout>
-                <FinancePage />
+                <AccountingPageNew />
               </DashboardLayout>
             </ProtectedRoute>
           } />
@@ -143,10 +155,17 @@ export default function App() {
               </DashboardLayout>
             </ProtectedRoute>
           } />
+          <Route path="/dashboard/manufacturing" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <ManufacturingPageNew />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
           <Route path="/dashboard/hr" element={
             <ProtectedRoute>
               <DashboardLayout>
-                <HRPage />
+                <HRPageNew />
               </DashboardLayout>
             </ProtectedRoute>
           } />
@@ -199,7 +218,9 @@ export default function App() {
         {/* Debug Info - only shows in development */}
         <DebugInfo />
       </AuthProvider>
+    </ToastProvider>
     </ThemeProvider>
+    </ErrorBoundary>
   )
 }
 

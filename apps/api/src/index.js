@@ -1,13 +1,122 @@
 const express = require('express')
 const cors = require('cors')
 const { PrismaClient } = require('./generated/prisma')
+const { createServer } = require('http')
+const { WebSocketServer } = require('ws')
 
 // Initialize Prisma Client
 const prisma = new PrismaClient()
 
-// Create Express app
+// Create Express app and HTTP server
 const app = express()
+const server = createServer(app)
 const PORT = process.env.PORT || 3001
+
+// WebSocket Server
+const wss = new WebSocketServer({
+  server,
+  path: '/ws'
+})
+
+// Store connected clients
+const clients = new Map()
+
+// WebSocket connection handler
+wss.on('connection', (ws, req) => {
+  const clientId = Math.random().toString(36).substring(7)
+  clients.set(clientId, ws)
+
+  console.log(`WebSocket client connected: ${clientId}`)
+
+  // Send welcome message
+  ws.send(JSON.stringify({
+    type: 'connection',
+    data: { message: 'Connected to ERP WebSocket server', clientId },
+    timestamp: new Date().toISOString()
+  }))
+
+  // Handle incoming messages
+  ws.on('message', (data) => {
+    try {
+      const message = JSON.parse(data.toString())
+      console.log(`Received from ${clientId}:`, message)
+
+      // Handle different message types
+      switch (message.type) {
+        case 'heartbeat':
+          ws.send(JSON.stringify({
+            type: 'heartbeat_ack',
+            timestamp: new Date().toISOString()
+          }))
+          break
+
+        case 'user_activity':
+          // Broadcast user activity to other clients
+          broadcastToOthers(clientId, {
+            type: 'user_activity',
+            data: message,
+            timestamp: new Date().toISOString()
+          })
+          break
+
+        default:
+          console.log('Unknown message type:', message.type)
+      }
+    } catch (error) {
+      console.error('Error parsing WebSocket message:', error)
+    }
+  })
+
+  // Handle client disconnect
+  ws.on('close', () => {
+    console.log(`WebSocket client disconnected: ${clientId}`)
+    clients.delete(clientId)
+  })
+
+  ws.on('error', (error) => {
+    console.error(`WebSocket error for client ${clientId}:`, error)
+    clients.delete(clientId)
+  })
+})
+
+// Broadcast message to all clients except sender
+function broadcastToOthers(senderId, message) {
+  clients.forEach((client, clientId) => {
+    if (clientId !== senderId && client.readyState === client.OPEN) {
+      client.send(JSON.stringify(message))
+    }
+  })
+}
+
+// Broadcast message to all clients
+function broadcastToAll(message) {
+  clients.forEach((client) => {
+    if (client.readyState === client.OPEN) {
+      client.send(JSON.stringify(message))
+    }
+  })
+}
+
+// Function to send real-time notifications
+function sendNotification(type, data, module = 'system') {
+  const notification = {
+    type: 'notification',
+    data: {
+      id: Math.random().toString(36).substring(7),
+      type,
+      title: data.title,
+      message: data.message,
+      description: data.description,
+      module,
+      timestamp: new Date().toISOString(),
+      read: false
+    },
+    timestamp: new Date().toISOString()
+  }
+
+  broadcastToAll(notification)
+  console.log('Sent notification:', notification)
+}
 
 // Middleware
 app.use(cors({
@@ -38,17 +147,21 @@ app.post('/api/auth/login', (req, res) => {
         email: 'admin@erp.com',
         name: 'Admin User',
         role: 'admin',
-        company: 'ERP Demo Company'
+        company: 'Tech-Development Demo Company'
       }
 
       // In real app, generate proper JWT token
       const token = 'demo-jwt-token-' + Date.now()
+      const refreshToken = 'demo-refresh-token-' + Date.now()
+      const expiresIn = 24 * 60 * 60 // 24 hours in seconds
 
       console.log('Login successful for:', email)
       res.json({
         message: 'Login successful',
         user,
-        token
+        token,
+        refreshToken,
+        expiresIn
       })
     } else {
       console.log('Invalid credentials for:', email)
@@ -74,7 +187,7 @@ app.get('/api/auth/me', (req, res) => {
       email: 'admin@erp.com',
       name: 'Admin User',
       role: 'admin',
-      company: 'ERP Demo Company'
+      company: 'Tech-Development Demo Company'
     }
 
     res.json({ user })
@@ -84,38 +197,34 @@ app.get('/api/auth/me', (req, res) => {
   }
 })
 
-// Dashboard API with real data
+// Dashboard API with mock data (fallback when database is not available)
 app.get('/api/dashboard/overview', async (req, res) => {
   try {
-    // Get real data from database
-    const totalUsers = await prisma.user.count()
-    const totalProducts = await prisma.product.count()
-    const totalOrders = await prisma.order.count()
-    const totalLeads = await prisma.lead.count()
+    // Try to get real data from database, fallback to mock data
+    let stats, recentOrders, recentActivities
 
-    const recentOrders = await prisma.order.findMany({
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        customer: { select: { name: true, company: true } }
-      }
-    })
+    try {
+      const totalUsers = await prisma.user.count()
+      const totalProducts = await prisma.product.count()
+      const totalOrders = await prisma.order.count()
+      const totalLeads = await prisma.lead.count()
 
-    // Calculate total revenue
-    const totalRevenue = await prisma.order.aggregate({
-      _sum: { totalAmount: true }
-    })
+      const orders = await prisma.order.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          customer: { select: { name: true, company: true } }
+        }
+      })
 
-    res.json({
-      stats: {
+      const totalRevenue = await prisma.order.aggregate({
+        _sum: { totalAmount: true }
+      })
+
+      stats = {
         revenue: {
           current: totalRevenue._sum.totalAmount || 0,
           change: 12.5,
-          trend: 'up'
-        },
-        users: {
-          current: totalUsers,
-          change: 8.2,
           trend: 'up'
         },
         orders: {
@@ -123,22 +232,85 @@ app.get('/api/dashboard/overview', async (req, res) => {
           change: -2.1,
           trend: 'down'
         },
+        customers: {
+          current: totalUsers,
+          change: 8.2,
+          trend: 'up'
+        },
         inventory: {
           current: totalProducts,
           change: 5.4,
           trend: 'up'
         }
-      },
-      recentOrders: recentOrders.map(order => ({
+      }
+
+      recentOrders = orders.map(order => ({
         id: order.orderNumber,
         customer: order.customer.company || order.customer.name,
-        amount: `Rp ${order.totalAmount.toLocaleString()}`,
+        amount: order.totalAmount,
         status: order.status,
         date: order.orderDate.toISOString().split('T')[0]
       }))
+
+      recentActivities = [
+        { id: 1, type: 'order', message: `New order received (${totalOrders} total)`, time: '5 min ago' },
+        { id: 2, type: 'payment', message: `Payment received (Rp ${(totalRevenue._sum.totalAmount || 0).toLocaleString()})`, time: '15 min ago' },
+        { id: 3, type: 'inventory', message: `${totalProducts} products in inventory`, time: '1 hour ago' },
+        { id: 4, type: 'user', message: `${totalUsers} active users`, time: '2 hours ago' },
+        { id: 5, type: 'lead', message: `${totalLeads} leads in pipeline`, time: '3 hours ago' }
+      ]
+
+      console.log('Dashboard data requested - real data from database')
+    } catch (dbError) {
+      console.log('Database not available, using mock data:', dbError.message)
+
+      // Fallback to mock data
+      stats = {
+        revenue: {
+          current: 15750000,
+          change: 12.5,
+          trend: 'up'
+        },
+        orders: {
+          current: 156,
+          change: 8.3,
+          trend: 'up'
+        },
+        customers: {
+          current: 89,
+          change: -2.1,
+          trend: 'down'
+        },
+        inventory: {
+          current: 1247,
+          change: 5.7,
+          trend: 'up'
+        }
+      }
+
+      recentOrders = [
+        { id: 'ORD-001', customer: 'PT. ABC Corp', amount: 2500000, status: 'completed', date: '2025-01-25' },
+        { id: 'ORD-002', customer: 'CV. XYZ Ltd', amount: 1750000, status: 'pending', date: '2025-01-24' },
+        { id: 'ORD-003', customer: 'PT. DEF Inc', amount: 3200000, status: 'processing', date: '2025-01-24' },
+        { id: 'ORD-004', customer: 'UD. GHI', amount: 890000, status: 'completed', date: '2025-01-23' },
+        { id: 'ORD-005', customer: 'PT. JKL Group', amount: 4100000, status: 'shipped', date: '2025-01-23' }
+      ]
+
+      recentActivities = [
+        { id: 1, type: 'order', message: 'New order #ORD-001 received', time: '5 min ago' },
+        { id: 2, type: 'payment', message: 'Payment of Rp 2.5M received', time: '15 min ago' },
+        { id: 3, type: 'inventory', message: 'Low stock alert for Product A', time: '1 hour ago' },
+        { id: 4, type: 'user', message: 'New user registered', time: '2 hours ago' },
+        { id: 5, type: 'lead', message: 'New lead from website contact form', time: '3 hours ago' }
+      ]
+    }
+
+    res.json({
+      stats,
+      recentOrders,
+      recentActivities
     })
 
-    console.log('Dashboard data requested - real data')
   } catch (error) {
     console.error('Dashboard error:', error)
     res.status(500).json({ error: 'Failed to get dashboard data' })
@@ -1406,11 +1578,55 @@ process.on('SIGTERM', async () => {
   process.exit(0)
 })
 
-// Start server
-app.listen(PORT, () => {
+// Start server with WebSocket support
+server.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`)
-  console.log(`📊 Environment: ${process.env.NODE_ENV}`)
-  console.log(`🔗 CORS enabled for: ${process.env.CORS_ORIGIN}`)
+  console.log(`🔌 WebSocket server running on ws://localhost:${PORT}/ws`)
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
+  console.log(`🔗 CORS enabled for: http://localhost:5173`)
+
+  // Send periodic dashboard updates (demo)
+  setInterval(() => {
+    const updates = {
+      type: 'dashboard_update',
+      data: {
+        stats: {
+          revenue: {
+            current: Math.floor(Math.random() * 20000000) + 10000000,
+            change: (Math.random() * 20 - 10).toFixed(1),
+            trend: Math.random() > 0.5 ? 'up' : 'down'
+          }
+        },
+        lastUpdate: new Date().toISOString()
+      },
+      timestamp: new Date().toISOString()
+    }
+
+    if (clients.size > 0) {
+      broadcastToAll(updates)
+      console.log(`📊 Sent dashboard update to ${clients.size} clients`)
+    }
+  }, 30000) // Every 30 seconds
+
+  // Send sample notifications periodically
+  const sampleNotifications = [
+    { title: 'New Order Received', message: 'Order #ORD-' + Math.floor(Math.random() * 1000), type: 'success' },
+    { title: 'Low Stock Alert', message: 'Product running low on stock', type: 'warning' },
+    { title: 'Payment Received', message: 'Payment of Rp ' + (Math.floor(Math.random() * 5000000) + 1000000).toLocaleString(), type: 'success' },
+    { title: 'New Lead', message: 'Hot lead from potential client', type: 'info' },
+    { title: 'System Update', message: 'System maintenance completed', type: 'info' }
+  ]
+
+  setInterval(() => {
+    if (clients.size > 0 && Math.random() > 0.7) { // 30% chance every minute
+      const notification = sampleNotifications[Math.floor(Math.random() * sampleNotifications.length)]
+      sendNotification(notification.type, {
+        title: notification.title,
+        message: notification.message,
+        description: 'Real-time notification from ERP system'
+      }, 'system')
+    }
+  }, 60000) // Every minute
 })
 
 module.exports = app

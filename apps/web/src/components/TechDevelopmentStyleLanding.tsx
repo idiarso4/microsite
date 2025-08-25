@@ -91,7 +91,7 @@ interface Solution {
   popular?: boolean
 }
 
-export default function HashMicroStyleLanding() {
+export default function TechDevelopmentStyleLanding() {
   const navigate = useNavigate()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -363,7 +363,7 @@ export default function HashMicroStyleLanding() {
               }}
               onClick={() => navigate('/')}
             >
-              HashMicro
+              Tech-Development
             </Typography>
 
             {!isMobile && (

@@ -31,7 +31,7 @@ import {
   Download,
   Menu as MenuIcon,
   Engineering,
-  Precision,
+  Settings,
   Assessment,
   TrendingUp,
   Schedule
@@ -77,7 +77,7 @@ export default function ManufacturingLandingPage() {
         </Toolbar>
       </AppBar>
 
-      {/* Hero Section - HashMicro Style */}
+      {/* Hero Section - Tech-Development Style */}
       <Box sx={{ backgroundColor: '#fff', py: { xs: 6, md: 10 } }}>
         <Container maxWidth="lg">
           <Grid container spacing={4} alignItems="center">

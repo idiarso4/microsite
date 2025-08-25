@@ -121,13 +121,13 @@ export default function LoginPage() {
                 WebkitTextFillColor: 'transparent'
               }}
             >
-              🏢 ERP Platform
+              🏢 Tech-Development Platform
             </Typography>
             <Typography variant="h6" color="text.secondary" gutterBottom>
               Masuk ke Dashboard Admin
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Kelola sistem ERP Anda dengan mudah
+              Kelola sistem Tech-Development Anda dengan mudah
             </Typography>
           </Box>
 

@@ -40,7 +40,6 @@ import {
   Visibility,
   Build,
   Engineering,
-  Precision,
   Assignment,
   Schedule,
   CheckCircle,

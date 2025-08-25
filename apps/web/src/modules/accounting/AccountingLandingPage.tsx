@@ -170,7 +170,7 @@ export default function AccountingLandingPage() {
         </Toolbar>
       </AppBar>
 
-      {/* Hero Section - HashMicro Style */}
+      {/* Hero Section - Tech-Development Style */}
       <Box sx={{ backgroundColor: '#fff', py: { xs: 6, md: 10 } }}>
         <Container maxWidth="lg">
           <Grid container spacing={4} alignItems="center">
@@ -352,7 +352,7 @@ export default function AccountingLandingPage() {
         </Container>
       </Box>
 
-      {/* Why Choose MicroSite - HashMicro Style */}
+      {/* Why Choose MicroSite - Tech-Development Style */}
       <Box sx={{ py: 8, backgroundColor: '#f8f9fa' }}>
         <Container maxWidth="lg">
           <Typography

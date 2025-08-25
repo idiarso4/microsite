@@ -1,10 +1,10 @@
-# MicroSite ERP - Modular Enterprise Resource Planning System
+# Tech-Development Platform - Modular Enterprise Resource Planning System
 
 A comprehensive, modern ERP (Enterprise Resource Planning) system built with React, TypeScript, Node.js, and PostgreSQL. This full-stack application provides complete business management capabilities with **modular landing pages**, professional UI/UX, and real-time analytics.
 
 ## 🌟 **NEW: Modular Landing Pages System**
 
-**Inspired by HashMicro's approach**, MicroSite ERP now features dedicated landing pages for each business module, eliminating confusion and providing focused user experiences.
+**Inspired by modern enterprise solutions**, Tech-Development Platform now features dedicated landing pages for each business module, eliminating confusion and providing focused user experiences.
 
 ### 🎯 **Module-Specific Landing Pages**
 Each business module now has its own professional landing page with:
@@ -15,6 +15,96 @@ Each business module now has its own professional landing page with:
 - ✅ **Professional contact information** per business area
 
 ## 🚀 Features Overview
+
+### 📊 **Complete Tech-Development System Architecture**
+
+Tech-Development Platform provides a comprehensive enterprise solution with **11 major business modules** organized in a logical, user-friendly structure. Each module includes full CRUD operations, advanced filtering, print/export capabilities, and role-based access control.
+
+### 🏗️ **Tech-Development Module Structure**
+
+#### 📊 **Dashboard**
+- **Route**: `/dashboard`
+- **Features**: Real-time KPIs, business intelligence widgets, quick actions
+- **Analytics**: Sales, inventory, finance, HR, and manufacturing metrics
+
+#### ⚙️ **Administrasi**
+- **Pengguna & Role** → `/admin/users` - User management and role assignments
+- **Hak Akses** → `/admin/roles` - Permission management and access control
+- **Audit Log** → `/admin/audit` - System activity tracking and compliance
+- **Pengaturan Sistem** → `/admin/settings` - Company settings, currency, tax, numbering
+- **Integrasi & API** → `/admin/integrations` - Webhooks, WA/Email/SMS, marketplace connections
+
+#### 🤝 **CRM & Sales**
+- **Leads** → `/crm/leads` - Lead management and qualification
+- **Kontak & Perusahaan** → `/crm/contacts` - Customer and company database
+- **Sales Pipeline** → `/crm/pipeline` - Kanban-style sales pipeline
+- **Penawaran** → `/sales/quotes` - Quotation management
+- **Sales Order** → `/sales/orders` - Sales order processing
+- **Delivery Order** → `/sales/deliveries` - Delivery management
+- **Invoice Penjualan** → `/sales/invoices` - Sales invoicing
+- **Retur Penjualan** → `/sales/returns` - Sales returns processing
+- **Harga & Promo** → `/sales/pricing` - Price lists and promotional contracts
+
+#### 🛒 **e-Procurement**
+- **Permintaan Pembelian** → `/procurement/requests` - Purchase requisitions
+- **RFQ/Tender** → `/procurement/rfq` - Request for quotations and tendering
+- **Purchase Order** → `/procurement/po` - Purchase order management
+- **Penerimaan Barang** → `/procurement/gr` - Goods receipt processing
+- **Invoice Pembelian** → `/procurement/invoices` - Accounts payable bills
+- **Retur Pembelian** → `/procurement/returns` - Purchase returns
+- **Vendor Management** → `/procurement/vendors` - Supplier relationship management
+
+#### 📦 **Manajemen Inventaris**
+- **Master Item** → `/inventory/items` - SKU, batch/lot, serial number management
+- **Kartu Stok & Mutasi** → `/inventory/ledger` - Stock cards and movement tracking
+- **Stock Management** → `/inventory/stock` - Min/max levels, reorder points
+- **Transfer & Adjustment** → `/inventory/movements` - Stock transfers and adjustments
+- **Stock Opname** → `/inventory/opname` - Cycle counting and physical inventory
+- **Gudang** → `/inventory/warehouses` - Multi-warehouse and bin location management
+
+#### 🚚 **Trading & Distribution**
+- **Orders** → `/fulfillment/orders` - Cross-channel order fulfillment summary
+- **Pengiriman** → `/fulfillment/shipments` - Shipping management with tracking
+- **Rute & Scheduling** → `/fulfillment/routes` - Route optimization and scheduling
+
+#### 🏭 **Manufaktur**
+- **Bill of Materials** → `/mfg/bom` - Product structure and component management
+- **Routing & Work Center** → `/mfg/routing` - Production routing and work centers
+- **MPS/MRP** → `/mfg/planning` - Master production schedule and material planning
+- **Manufacturing Order** → `/mfg/orders` - Work orders and WIP tracking
+- **Issue/Receive Material** → `/mfg/materials` - Material issue and receipt
+- **Quality Control** → `/mfg/qc` - Incoming, in-process, and outgoing QC
+
+#### 🏢 **Aset & Maintenance**
+- **Aset Tetap** → `/fa/assets` - Fixed asset acquisition, depreciation, disposal
+- **Jadwal Depresiasi** → `/fa/schedule` - Depreciation scheduling
+- **Maintenance** → `/maint/workorders` - Preventive/corrective maintenance with spare parts
+
+#### 👥 **SDM & Payroll**
+- **Data Karyawan** → `/hr/employees` - Employee database and organizational structure
+- **Absensi & Shift** → `/hr/attendance` - Time tracking and shift management
+- **Cuti & Izin** → `/hr/leave` - Leave management with approval workflows
+- **Payroll** → `/hr/payroll` - Payroll processing, PPh21, BPJS integration
+- **Rekrutmen** → `/hr/recruitment` - Recruitment management (optional)
+- **Kinerja/OKR** → `/hr/performance` - Performance and OKR management (optional)
+
+#### 💰 **Keuangan & Akuntansi**
+- **Kas & Bank** → `/fin/cashbank` - Cash and bank reconciliation
+- **Piutang (AR)** → `/fin/ar` - Accounts receivable management
+- **Hutang (AP)** → `/fin/ap` - Accounts payable management
+- **Jurnal Umum** → `/fin/gl` - General ledger and journal entries
+- **Periode & Closing** → `/fin/periods` - Period management and closing
+- **Pajak** → `/fin/tax` - Tax management (PPN, e-Faktur, PPh, e-Bupot)
+- **Laporan Keuangan** → `/fin/reports` - Financial reporting
+
+#### 📊 **BI & Laporan**
+- **Report Builder** → `/bi/builder` - Ad-hoc report creation
+- **Dashboard KPI** → `/bi/dashboards` - KPI dashboards for all modules
+- **Ekspor & Data Hub** → `/bi/export` - ETL and data export capabilities
+
+#### 🆘 **Bantuan & Dokumen**
+- **SOP & Knowledge Base** → `/help/kb` - Standard operating procedures
+- **Tiket/Helpdesk** → `/help/tickets` - Support ticket system (optional)
 
 ### 📊 **6 Complete Business Modules with Dedicated Landing Pages**
 
@@ -54,16 +144,87 @@ Each business module now has its own professional landing page with:
 - **Value Prop**: Cost savings 25%, process efficiency
 - **Login**: Dedicated procurement login at `/procurement/login`
 
+## 🔧 **Technical Implementation Guidelines**
+
+### 🏗️ **ERP Architecture Considerations**
+
+#### 📋 **Master Data & SKU Management**
+- **SKU Format**: Consistent format (CAT-Brand-Model-Variant-Size), unique across company & warehouse
+- **Barcode Support**: EAN-13/UPC, Code-128, QR codes with multi-barcode per item
+- **Variant Management**: Color, size, material variants with UoM conversions
+- **Batch/Serial**: Support for batch/expiry (FMCG/pharma) and serial numbers (electronics)
+- **Physical Attributes**: Dimensions, weight, volume, HS Code, country of origin
+
+#### 🏷️ **Label & Barcode System**
+- **Label Design**: Size, logo, SKU, name, variant, UoM, expiry, batch, GTIN
+- **Printer Support**: ZPL/EPL/TSPL (Zebra/TSC/Argox) compatibility
+- **Scanner Integration**: Keyboard wedge/HID vs serial, 1D/2D, wired/wireless
+- **Print Triggers**: GR/production/repack events with reprint capabilities
+- **Verification**: Post-scan validation (SKU existence, status, UoM accuracy)
+
+#### 📦 **Warehouse Processes (Scan-First)**
+- **Inbound (GR)**: Scan per unit/pack with auto-assign putaway locations
+- **Picking**: Wave/batch/zone picking with optimal location sequencing
+- **Packing & Shipping**: Item/quantity verification with shipping label printing
+- **Cycle Count**: Location/SKU-based blind counting with variance approval
+- **Transfer & Adjustment**: Mandatory scanning with reason codes
+- **Traceability**: Complete audit trail per scan, user, timestamp, device
+
+#### 📄 **Document Flow Integration**
+- **3-Way Match**: PO–GR–AP Invoice with quantity/price tolerance
+- **Sales Flow**: SO → Picking → DO → AR Invoice → Payment → Return (CN)
+- **Return Processing**: Separate sales/purchase return flows with QC and stock/journal effects
+
+#### 💰 **Financial Automation**
+- **Account Mapping**: Per item category, customer, vendor, tax, price difference, stock adjustment
+- **Inventory Valuation**: FIFO/Average with controlled revaluation
+- **Bank Reconciliation**: Automated reconciliation with bank statement import
+- **Period Closing**: Soft close → hard close with lock date enforcement
+
+#### 🇮🇩 **Indonesian Localization**
+- **Tax Management**: Dynamic PPN 11%, e-Faktur (CSV/API export), PPh21/BPJS integration
+- **Document Numbering**: Regulated numbering for commercial vs tax invoices
+- **Compliance**: e-Bupot support and local tax reporting requirements
+
+#### 👥 **HR/Payroll Integration**
+- **Attendance**: Fingerprint/face recognition integration with shift/rounding rules
+- **Leave Management**: Approval matrix with local holiday calendar
+- **RBAC**: Role-based access with module and row-level permissions (per branch/warehouse)
+
+#### 🔒 **Performance & Reliability**
+- **Audit Logging**: Complete transaction audit including price/master data changes
+- **Backup & DR**: Scheduled backup with point-in-time recovery
+- **Batch Processing**: Automated numbering, period closing, reindexing, valuation calculation
+- **Concurrency**: Document versioning with pessimistic/optimistic locking
+
+#### 🔗 **Ecosystem Integration**
+- **Marketplace**: Shopee/Tokopedia/etc. integration
+- **Payment Gateway**: Multiple payment provider support
+- **Shipping**: Courier API integration for rates and tracking
+- **Notifications**: WhatsApp/Email/SMS for SO/DO/Invoice notifications
+- **BI/Analytics**: ETL to data warehouse, Power BI, Metabase integration
+
+#### ✅ **Data Quality & Migration**
+- **Validation Rules**: Barcode/SKU duplication prevention, mandatory UoM/category/tax
+- **Import Templates**: Master items, customers, vendors, opening stock, GL balances
+- **Testing Environment**: Sandbox/UAT with dummy company for end-to-end testing
+
+#### 🏭 **Manufacturing Specifics**
+- **BoM Management**: Multi-level bill of materials with routing/work center integration
+- **Material Control**: Scan-based material issue/receipt for production
+- **Quality Control**: Incoming/in-process/outgoing QC with CAPA (Corrective and Preventive Action)
+- **Maintenance**: Preventive maintenance scheduling with spare parts management
+
 ### 🎨 **HashMicro-Style Design Elements**
 - **Professional Hero Sections**: Left content + right dashboard preview
-- **"Mengapa Pilih MicroSite?" Sections**: 3 benefit highlights per module
+- **"Mengapa Pilih Tech-Development?" Sections**: 3 benefit highlights per module
 - **Color-Coded Module Identity**: Each module has its own professional color scheme
 - **Contact & Support**: Module-specific contact information and support
 - **Responsive Design**: Mobile-first approach with tablet and desktop optimization
 
 ### � **NEW: Comprehensive Product Menu System**
 
-**Inspired by HashMicro's complete product catalog**, MicroSite ERP now features a comprehensive product menu with 8 major categories and 50+ business solutions.
+**Inspired by modern enterprise solutions**, Tech-Development Platform now features a comprehensive product menu with 8 major categories and 50+ business solutions.
 
 #### 📋 **8 Major Product Categories**
 

@@ -68,9 +68,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         // Check for regular auth token using TokenService
         const token = TokenService.getAccessToken()
+        console.log('Auth check - Token:', token ? 'Present' : 'Missing')
+        console.log('Auth check - Token expired:', TokenService.isTokenExpired())
+
         if (token && !TokenService.isTokenExpired()) {
           try {
+            console.log('Auth check - Getting user profile...')
             const userData = await apiService.getProfile()
+            console.log('Auth check - Profile data:', userData)
             setUser(userData.user)
             setIsDemoMode(false)
 
@@ -197,10 +202,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const loginDemo = () => {
     const demoUser: User = {
       id: 999,
-      email: 'demo@hashmicro.com',
+      email: 'demo@tech-development.com',
       name: 'Demo User',
       role: UserRole.ADMIN,
-      company: 'HashMicro Demo Company',
+      company: 'Tech-Development Demo Company',
       permissions: []
     }
 

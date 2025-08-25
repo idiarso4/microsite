@@ -1,149 +1,490 @@
-import { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   Box,
-  Grid,
-  Paper,
   Typography,
+  Grid,
   Card,
   CardContent,
+  CardActions,
   Button,
+  Tabs,
+  Tab,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  IconButton,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Divider,
+  Snackbar,
+  Alert,
+  CircularProgress,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  TextField,
-  CircularProgress,
-  Alert,
-  Divider,
-  Snackbar
+  TextField
 } from '@mui/material'
 import {
   Assessment,
-  TrendingUp,
-  PieChart,
-  BarChart,
-  Download,
-  DateRange,
-  FilterList,
-  CloudDownload,
-  Print,
-  Share,
+  Add,
+  Edit,
+  Delete,
   Schedule,
+  Download,
+  Visibility,
+  BarChart,
+  PieChart,
+  ShowChart,
   TableChart,
+  TrendingUp,
+  Business,
+  Inventory,
+  People,
+  MonetizationOn,
+  CloudDownload,
   InsertDriveFile,
   PictureAsPdf,
-  Description
+  Description,
+  FilterList,
+  Print,
+  Close
 } from '@mui/icons-material'
-import { apiService } from '../../services/api'
+import ReportBuilder, { ReportConfig, ReportField } from '../reports/ReportBuilder'
+import ReportChart, { generateSampleData } from '../reports/ReportChart'
+import { useToast } from '../common/ToastProvider'
+
+interface TabPanelProps {
+  children?: React.ReactNode
+  index: number
+  value: number
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`reports-tabpanel-${index}`}
+      aria-labelledby={`reports-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+    </div>
+  )
+}
 
 export default function ReportsPage() {
-  const [reportsData, setReportsData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const [tabValue, setTabValue] = useState(0)
+  const [builderOpen, setBuilderOpen] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewConfig, setPreviewConfig] = useState<ReportConfig | null>(null)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [reportsData, setReportsData] = useState<any>(null)
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error' | 'warning' | 'info'
+  })
   const [reportType, setReportType] = useState('sales')
   const [dateRange, setDateRange] = useState('month')
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
+  const [savedReports, setSavedReports] = useState<ReportConfig[]>([
+    {
+      name: 'Monthly Sales Report',
+      description: 'Monthly sales performance analysis',
+      type: 'chart',
+      chartType: 'bar',
+      fields: ['month', 'revenue', 'orders'],
+      filters: [],
+      groupBy: ['month']
+    },
+    {
+      name: 'Product Category Analysis',
+      description: 'Sales breakdown by product category',
+      type: 'chart',
+      chartType: 'pie',
+      fields: ['category', 'sales'],
+      filters: [],
+      groupBy: ['category']
+    },
+    {
+      name: 'Customer List',
+      description: 'Complete customer database',
+      type: 'table',
+      fields: ['name', 'email', 'company', 'phone', 'status'],
+      filters: []
+    }
+  ])
 
-  useEffect(() => {
-    const fetchReportsData = async () => {
-      try {
-        setLoading(true)
-        const [ordersData, leadsData, productsData, dashboardData] = await Promise.all([
-          apiService.getOrders({ limit: 100 }),
-          apiService.getLeads({ limit: 100 }),
-          apiService.getProducts({ limit: 100 }),
-          apiService.getDashboardOverview()
-        ])
+  const toast = useToast()
 
-        // Calculate report metrics
-        const totalSales = ordersData.orders?.reduce((sum: number, order: any) => 
-          sum + (order.totalAmount || 0), 0) || 0
-        
-        const salesByStatus = ordersData.orders?.reduce((acc: any, order: any) => {
-          acc[order.status] = (acc[order.status] || 0) + order.totalAmount
-          return acc
-        }, {}) || {}
+  // Sample available fields for report building
+  const availableFields: ReportField[] = [
+    // Sales fields
+    { id: 'sales_date', name: 'sales_date', type: 'date', label: 'Sale Date', table: 'Sales' },
+    { id: 'sales_amount', name: 'amount', type: 'number', label: 'Sale Amount', table: 'Sales' },
+    { id: 'sales_quantity', name: 'quantity', type: 'number', label: 'Quantity', table: 'Sales' },
+    { id: 'sales_status', name: 'status', type: 'enum', label: 'Status', table: 'Sales' },
 
-        const leadsByStatus = leadsData.leads?.reduce((acc: any, lead: any) => {
-          acc[lead.status] = (acc[lead.status] || 0) + 1
-          return acc
-        }, {}) || {}
+    // Customer fields
+    { id: 'customer_name', name: 'name', type: 'text', label: 'Customer Name', table: 'Customers' },
+    { id: 'customer_email', name: 'email', type: 'text', label: 'Email', table: 'Customers' },
+    { id: 'customer_company', name: 'company', type: 'text', label: 'Company', table: 'Customers' },
+    { id: 'customer_phone', name: 'phone', type: 'text', label: 'Phone', table: 'Customers' },
 
-        const topProducts = productsData.products?.sort((a: any, b: any) => 
-          (b.stock * b.price) - (a.stock * a.price)).slice(0, 5) || []
+    // Product fields
+    { id: 'product_name', name: 'name', type: 'text', label: 'Product Name', table: 'Products' },
+    { id: 'product_category', name: 'category', type: 'enum', label: 'Category', table: 'Products' },
+    { id: 'product_price', name: 'price', type: 'number', label: 'Price', table: 'Products' },
+    { id: 'product_stock', name: 'stock', type: 'number', label: 'Stock', table: 'Products' },
 
-        setReportsData({
-          totalSales,
-          salesByStatus,
-          leadsByStatus,
-          topProducts,
-          orders: ordersData.orders || [],
-          leads: leadsData.leads || [],
-          products: productsData.products || [],
-          stats: dashboardData.stats
-        })
-        setError(null)
-      } catch (err) {
-        console.error('Failed to fetch reports data:', err)
-        setError('Failed to load reports data')
-      } finally {
-        setLoading(false)
+    // Order fields
+    { id: 'order_date', name: 'order_date', type: 'date', label: 'Order Date', table: 'Orders' },
+    { id: 'order_total', name: 'total', type: 'number', label: 'Order Total', table: 'Orders' },
+    { id: 'order_status', name: 'status', type: 'enum', label: 'Order Status', table: 'Orders' }
+  ]
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue)
+  }
+
+  const handleSaveReport = (config: ReportConfig) => {
+    setSavedReports(prev => [...prev, config])
+    setBuilderOpen(false)
+    toast.success(`Report "${config.name}" saved successfully!`)
+  }
+
+  const handlePreviewReport = (config: ReportConfig) => {
+    setPreviewConfig(config)
+    setPreviewOpen(true)
+  }
+
+  const handleDeleteReport = (index: number) => {
+    const report = savedReports[index]
+    setSavedReports(prev => prev.filter((_, i) => i !== index))
+    toast.success(`Report "${report.name}" deleted successfully!`)
+  }
+
+  const handleScheduleReport = (config: ReportConfig, schedule: any) => {
+    toast.info(`Report "${config.name}" scheduled successfully!`)
+  }
+
+  const getReportIcon = (type: string, chartType?: string) => {
+    if (type === 'table') return <TableChart />
+    if (type === 'chart') {
+      switch (chartType) {
+        case 'bar': return <BarChart />
+        case 'line': return <ShowChart />
+        case 'pie': return <PieChart />
+        case 'area': return <ShowChart />
+        default: return <Assessment />
       }
     }
-
-    fetchReportsData()
-  }, [reportType, dateRange])
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress size={60} sx={{ color: '#DC143C' }} />
-      </Box>
-    )
+    return <Assessment />
   }
 
-  if (error) {
-    return (
-      <Box textAlign="center" py={8}>
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-        <Typography variant="body2" color="text.secondary">
-          Please try refreshing the page
-        </Typography>
-      </Box>
-    )
-  }
-
-  const reportStats = [
+  // Sample dashboard charts
+  const dashboardCharts = [
     {
-      title: 'Total Sales',
-      value: `Rp ${(reportsData?.totalSales || 0).toLocaleString()}`,
-      icon: <TrendingUp />,
-      color: '#DC143C'
+      title: 'Monthly Revenue Trend',
+      subtitle: 'Revenue performance over the last 12 months',
+      type: 'line' as const,
+      data: generateSampleData('monthly', 12),
+      xAxisKey: 'name',
+      yAxisKey: 'revenue'
     },
     {
-      title: 'Total Orders',
-      value: reportsData?.orders?.length?.toString() || '0',
-      icon: <Assessment />,
-      color: '#4CAF50'
+      title: 'Sales by Category',
+      subtitle: 'Distribution of sales across product categories',
+      type: 'pie' as const,
+      data: generateSampleData('category', 5),
+      xAxisKey: 'name',
+      yAxisKey: 'value'
     },
     {
-      title: 'Total Leads',
-      value: reportsData?.leads?.length?.toString() || '0',
-      icon: <PieChart />,
-      color: '#FF9800'
+      title: 'Weekly Orders',
+      subtitle: 'Order volume trend over recent weeks',
+      type: 'bar' as const,
+      data: generateSampleData('trend', 8),
+      xAxisKey: 'name',
+      yAxisKey: 'value'
     },
     {
-      title: 'Products',
-      value: reportsData?.products?.length?.toString() || '0',
-      icon: <BarChart />,
-      color: '#1A1A1A'
+      title: 'Growth Trend',
+      subtitle: 'Business growth metrics over time',
+      type: 'area' as const,
+      data: generateSampleData('trend', 10),
+      xAxisKey: 'name',
+      yAxisKey: 'value'
     }
   ]
 
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+            Reports & Analytics
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Create custom reports and analyze your business data
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<Add />}
+          onClick={() => setBuilderOpen(true)}
+          sx={{
+            bgcolor: '#DC143C',
+            '&:hover': { bgcolor: '#B91C3C' }
+          }}
+        >
+          Create Report
+        </Button>
+      </Box>
+
+      <Paper sx={{ width: '100%' }}>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          sx={{ borderBottom: 1, borderColor: 'divider' }}
+        >
+          <Tab label="Dashboard" icon={<Assessment />} />
+          <Tab label="My Reports" icon={<Business />} />
+          <Tab label="Scheduled" icon={<Schedule />} />
+        </Tabs>
+
+        <TabPanel value={tabValue} index={0}>
+          <Grid container spacing={3}>
+            {dashboardCharts.map((chart, index) => (
+              <Grid item xs={12} md={6} key={index}>
+                <ReportChart
+                  {...chart}
+                  onExport={(format) => toast.info(`Exporting chart as ${format.toUpperCase()}...`)}
+                  onRefresh={() => toast.info('Refreshing chart data...')}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={1}>
+          {savedReports.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Assessment sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                No reports created yet
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Create your first custom report to get started
+              </Typography>
+              <Button
+                variant="contained"
+                startIcon={<Add />}
+                onClick={() => setBuilderOpen(true)}
+                sx={{
+                  bgcolor: '#DC143C',
+                  '&:hover': { bgcolor: '#B91C3C' }
+                }}
+              >
+                Create Report
+              </Button>
+            </Box>
+          ) : (
+            <List>
+              {savedReports.map((report, index) => (
+                <React.Fragment key={index}>
+                  <ListItem>
+                    <ListItemIcon>
+                      {getReportIcon(report.type, report.chartType)}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          {report.name}
+                          <Chip
+                            label={report.type}
+                            size="small"
+                            variant="outlined"
+                            color="primary"
+                          />
+                          {report.chartType && (
+                            <Chip
+                              label={report.chartType}
+                              size="small"
+                              variant="outlined"
+                            />
+                          )}
+                        </Box>
+                      }
+                      secondary={report.description}
+                    />
+                    <ListItemSecondaryAction>
+                      <IconButton
+                        size="small"
+                        onClick={() => handlePreviewReport(report)}
+                        sx={{ mr: 1 }}
+                      >
+                        <Visibility />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteReport(index)}
+                        color="error"
+                      >
+                        <Delete />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                  {index < savedReports.length - 1 && <Divider />}
+                </React.Fragment>
+              ))}
+            </List>
+          )}
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={2}>
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Schedule sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              No scheduled reports
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Schedule reports to be automatically generated and sent
+            </Typography>
+          </Box>
+        </TabPanel>
+      </Paper>
+
+      {/* Report Builder Dialog */}
+      <Dialog
+        open={builderOpen}
+        onClose={() => setBuilderOpen(false)}
+        maxWidth="xl"
+        fullWidth
+      >
+        <ReportBuilder
+          availableFields={availableFields}
+          onSave={handleSaveReport}
+          onPreview={handlePreviewReport}
+          onSchedule={handleScheduleReport}
+        />
+      </Dialog>
+
+      {/* Report Preview Dialog */}
+      <Dialog
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>
+          Report Preview: {previewConfig?.name}
+        </DialogTitle>
+        <DialogContent>
+          {previewConfig && previewConfig.type === 'chart' && (
+            <ReportChart
+              title={previewConfig.name}
+              subtitle={previewConfig.description}
+              type={previewConfig.chartType || 'bar'}
+              data={generateSampleData('monthly', 6)}
+              height={400}
+            />
+          )}
+          {previewConfig && previewConfig.type === 'table' && (
+            <Typography variant="body1" sx={{ py: 4, textAlign: 'center' }}>
+              Table preview would show here with selected fields: {previewConfig.fields.join(', ')}
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPreviewOpen(false)}>
+            Close
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<Download />}
+            sx={{
+              bgcolor: '#DC143C',
+              '&:hover': { bgcolor: '#B91C3C' }
+            }}
+          >
+            Export
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Loading and Error States */}
+      {loading && (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress size={60} sx={{ color: '#DC143C' }} />
+        </Box>
+      )}
+
+      {error && (
+        <Box textAlign="center" py={8}>
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+          <Typography variant="body2" color="text.secondary">
+            Please try refreshing the page
+          </Typography>
+        </Box>
+      )}
+
+      {/* Report Statistics */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        {[
+          {
+            title: 'Total Sales',
+            value: `Rp ${(reportsData?.totalSales || 0).toLocaleString()}`,
+            icon: <TrendingUp />,
+            color: '#DC143C'
+          },
+          {
+            title: 'Total Orders',
+            value: reportsData?.orders?.length?.toString() || '0',
+            icon: <Assessment />,
+            color: '#4CAF50'
+          },
+          {
+            title: 'Total Leads',
+            value: reportsData?.leads?.length?.toString() || '0',
+            icon: <PieChart />,
+            color: '#FF9800'
+          },
+          {
+            title: 'Products',
+            value: reportsData?.products?.length?.toString() || '0',
+            icon: <BarChart />,
+            color: '#1A1A1A'
+          }
+        ].map((stat, index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ color: stat.color }}>
+                    {stat.icon}
+                  </Box>
+                  <Box>
+                    <Typography variant="h6">{stat.value}</Typography>
+                    <Typography variant="body2" color="text.secondary">{stat.title}</Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Box>
@@ -388,7 +729,32 @@ export default function ReportsPage() {
 
       {/* Stats Cards */}
       <Grid container spacing={3} mb={4}>
-        {reportStats.map((stat, index) => (
+        {[
+          {
+            title: 'Total Sales',
+            value: `Rp ${(reportsData?.totalSales || 0).toLocaleString()}`,
+            icon: <TrendingUp />,
+            color: '#DC143C'
+          },
+          {
+            title: 'Total Orders',
+            value: reportsData?.orders?.length?.toString() || '0',
+            icon: <Assessment />,
+            color: '#4CAF50'
+          },
+          {
+            title: 'Total Leads',
+            value: reportsData?.leads?.length?.toString() || '0',
+            icon: <PieChart />,
+            color: '#FF9800'
+          },
+          {
+            title: 'Products',
+            value: reportsData?.products?.length?.toString() || '0',
+            icon: <BarChart />,
+            color: '#1A1A1A'
+          }
+        ].map((stat, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>
             <Card
               sx={{

@@ -57,9 +57,19 @@ export class TokenService {
 
   // Check if access token is expired
   static isTokenExpired(): boolean {
+    const token = this.getAccessToken()
+
+    // For demo tokens, consider them valid for 24 hours
+    if (token && token.startsWith('demo-jwt-token-')) {
+      const tokenTimestamp = parseInt(token.replace('demo-jwt-token-', ''))
+      const tokenAge = Date.now() - tokenTimestamp
+      const maxAge = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+      return tokenAge > maxAge
+    }
+
     const expiry = this.getTokenExpiry()
     if (!expiry) return true
-    
+
     // Add 5 minute buffer before actual expiry
     const bufferTime = 5 * 60 * 1000 // 5 minutes in milliseconds
     return Date.now() >= (expiry - bufferTime)

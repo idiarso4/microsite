@@ -44,33 +44,16 @@ import {
 import { useAuth } from '../../contexts/AuthContext'
 import { usePermissions } from '../../hooks/usePermissions'
 import PermissionGuard from '../auth/PermissionGuard'
+import { dashboardService, DashboardOverview, DashboardAlert } from '../../services/dashboard'
+import { useDashboardUpdates, useNotifications, useUserActivity } from '../../hooks/useWebSocket'
 
-// Mock data for demonstration
-const mockDashboardData = {
-  stats: {
-    revenue: { current: 15750000, change: 12.5, trend: 'up' },
-    orders: { current: 156, change: 8.3, trend: 'up' },
-    customers: { current: 89, change: -2.1, trend: 'down' },
-    inventory: { current: 1247, change: 5.7, trend: 'up' }
-  },
-  recentActivities: [
-    { id: 1, type: 'order', message: 'New order #ORD-001 received', time: '5 min ago', icon: <ShoppingCart /> },
-    { id: 2, type: 'payment', message: 'Payment of Rp 2.5M received', time: '15 min ago', icon: <MonetizationOn /> },
-    { id: 3, type: 'inventory', message: 'Low stock alert for Product A', time: '1 hour ago', icon: <Warning /> },
-    { id: 4, type: 'user', message: 'New user registered', time: '2 hours ago', icon: <People /> }
-  ],
-  quickActions: [
-    { title: 'Create Invoice', icon: <AccountBalance />, action: 'invoice', color: '#DC143C' },
-    { title: 'Add Product', icon: <Inventory />, action: 'product', color: '#1A1A1A' },
-    { title: 'New Customer', icon: <People />, action: 'customer', color: '#4CAF50' },
-    { title: 'Generate Report', icon: <Assessment />, action: 'report', color: '#FF9800' }
-  ],
-  alerts: [
-    { id: 1, type: 'warning', message: '5 products are running low on stock', priority: 'high' },
-    { id: 2, type: 'info', message: 'Monthly report is ready for review', priority: 'medium' },
-    { id: 3, type: 'success', message: 'Backup completed successfully', priority: 'low' }
-  ]
-}
+// Quick actions configuration
+const quickActions = [
+  { title: 'Create Invoice', icon: <AccountBalance />, action: 'invoice', color: '#DC143C' },
+  { title: 'Add Product', icon: <Inventory />, action: 'product', color: '#1A1A1A' },
+  { title: 'New Customer', icon: <People />, action: 'customer', color: '#4CAF50' },
+  { title: 'Generate Report', icon: <Assessment />, action: 'report', color: '#FF9800' }
+]
 
 interface StatCardProps {
   title: string
@@ -144,17 +127,59 @@ export default function EnhancedDashboard() {
   const { canAccessModule, getAccessibleModules } = usePermissions()
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [dashboardData, setDashboardData] = useState<DashboardOverview | null>(null)
+  const [alerts, setAlerts] = useState<DashboardAlert[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date())
+
+  // Real-time updates
+  const { notifications, unreadCount } = useNotifications()
+  const { trackActivity } = useUserActivity()
+
+  const loadDashboardData = async () => {
+    try {
+      setError(null)
+      const data = await dashboardService.getOverview()
+      setDashboardData(data)
+      setLastUpdateTime(new Date())
+
+      // Generate alerts based on the data
+      const generatedAlerts = dashboardService.generateAlerts(data.stats)
+      setAlerts(generatedAlerts)
+
+      // Track user activity
+      trackActivity('dashboard_view', { timestamp: new Date().toISOString() })
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err)
+      setError('Failed to load dashboard data. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Real-time dashboard updates
+  useDashboardUpdates((updatedData) => {
+    console.log('Received real-time dashboard update:', updatedData)
+    setDashboardData(prev => ({
+      ...prev,
+      ...updatedData
+    }))
+    setLastUpdateTime(new Date())
+
+    // Update alerts if stats changed
+    if (updatedData.stats) {
+      const generatedAlerts = dashboardService.generateAlerts(updatedData.stats)
+      setAlerts(generatedAlerts)
+    }
+  })
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setLoading(false), 1000)
-    return () => clearTimeout(timer)
+    loadDashboardData()
   }, [])
 
   const handleRefresh = async () => {
     setRefreshing(true)
-    // Simulate refresh
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await loadDashboardData()
     setRefreshing(false)
   }
 
@@ -171,47 +196,87 @@ export default function EnhancedDashboard() {
     )
   }
 
-  const statsCards = [
+  const statsCards = dashboardData ? [
     {
       title: 'Total Revenue',
-      value: `Rp ${mockDashboardData.stats.revenue.current.toLocaleString()}`,
-      change: mockDashboardData.stats.revenue.change,
-      trend: mockDashboardData.stats.revenue.trend as 'up' | 'down',
+      value: `Rp ${(dashboardData?.stats?.revenue?.current || 0).toLocaleString()}`,
+      change: dashboardData?.stats?.revenue?.change || 0,
+      trend: (dashboardData?.stats?.revenue?.trend || 'up') as 'up' | 'down',
       icon: <MonetizationOn />,
       color: '#DC143C',
       onClick: () => canAccessModule('accounting') && console.log('Navigate to accounting')
     },
     {
       title: 'Orders',
-      value: mockDashboardData.stats.orders.current.toString(),
-      change: mockDashboardData.stats.orders.change,
-      trend: mockDashboardData.stats.orders.trend as 'up' | 'down',
+      value: (dashboardData?.stats?.orders?.current || 0).toString(),
+      change: dashboardData?.stats?.orders?.change || 0,
+      trend: (dashboardData?.stats?.orders?.trend || 'up') as 'up' | 'down',
       icon: <ShoppingCart />,
       color: '#1A1A1A',
       onClick: () => canAccessModule('crm') && console.log('Navigate to orders')
     },
     {
       title: 'Customers',
-      value: mockDashboardData.stats.customers.current.toString(),
-      change: mockDashboardData.stats.customers.change,
-      trend: mockDashboardData.stats.customers.trend as 'up' | 'down',
+      value: (dashboardData?.stats?.customers?.current || 0).toString(),
+      change: dashboardData?.stats?.customers?.change || 0,
+      trend: (dashboardData?.stats?.customers?.trend || 'up') as 'up' | 'down',
       icon: <People />,
       color: '#4CAF50',
       onClick: () => canAccessModule('crm') && console.log('Navigate to customers')
     },
     {
       title: 'Inventory Items',
-      value: mockDashboardData.stats.inventory.current.toString(),
-      change: mockDashboardData.stats.inventory.change,
-      trend: mockDashboardData.stats.inventory.trend as 'up' | 'down',
+      value: (dashboardData?.stats?.inventory?.current || 0).toString(),
+      change: dashboardData?.stats?.inventory?.change || 0,
+      trend: (dashboardData?.stats?.inventory?.trend || 'up') as 'up' | 'down',
       icon: <Inventory />,
       color: '#FF9800',
       onClick: () => canAccessModule('inventory') && console.log('Navigate to inventory')
     }
-  ]
+  ] : []
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress size={40} />
+        <Typography variant="h6" sx={{ ml: 2 }}>
+          Loading dashboard...
+        </Typography>
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Box>
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+        <Button
+          variant="contained"
+          startIcon={<Refresh />}
+          onClick={handleRefresh}
+          disabled={refreshing}
+        >
+          Retry
+        </Button>
+      </Box>
+    )
+  }
 
   return (
     <Box>
+      {/* CSS Animation for pulse effect */}
+      <style>
+        {`
+          @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+          }
+        `}
+      </style>
+
       {/* Welcome Header */}
       <Box mb={4} display="flex" justifyContent="space-between" alignItems="center">
         <Box>
@@ -230,14 +295,43 @@ export default function EnhancedDashboard() {
             />
           )}
         </Box>
-        <Button
-          variant="outlined"
-          startIcon={refreshing ? <CircularProgress size={16} /> : <Refresh />}
-          onClick={handleRefresh}
-          disabled={refreshing}
-        >
-          Refresh
-        </Button>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Real-time indicator */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                bgcolor: '#4CAF50',
+                animation: 'pulse 2s infinite'
+              }}
+            />
+            <Typography variant="caption" color="text.secondary">
+              Live • Updated {lastUpdateTime.toLocaleTimeString()}
+            </Typography>
+          </Box>
+
+          {/* Notifications */}
+          {unreadCount > 0 && (
+            <Chip
+              icon={<Notifications />}
+              label={`${unreadCount} new`}
+              color="primary"
+              size="small"
+              variant="outlined"
+            />
+          )}
+
+          <Button
+            variant="outlined"
+            startIcon={refreshing ? <CircularProgress size={16} /> : <Refresh />}
+            onClick={handleRefresh}
+            disabled={refreshing}
+          >
+            Refresh
+          </Button>
+        </Box>
       </Box>
 
       {/* Stats Cards */}
@@ -260,7 +354,7 @@ export default function EnhancedDashboard() {
                 Quick Actions
               </Typography>
               <Grid container spacing={2}>
-                {mockDashboardData.quickActions.map((action, index) => (
+                {quickActions.map((action, index) => (
                   <Grid item xs={6} key={index}>
                     <PermissionGuard showFallback={false}>
                       <Button
@@ -296,12 +390,39 @@ export default function EnhancedDashboard() {
                 Recent Activities
               </Typography>
               <List dense>
-                {mockDashboardData.recentActivities.map((activity, index) => (
+                {/* Real-time notifications first */}
+                {notifications.slice(0, 3).map((notification, index) => (
+                  <React.Fragment key={`notif-${notification.id || index}`}>
+                    <ListItem sx={{ bgcolor: notification.read ? 'transparent' : 'action.hover' }}>
+                      <ListItemIcon>
+                        <Avatar sx={{ width: 32, height: 32, bgcolor: '#4CAF50' }}>
+                          <Notifications />
+                        </Avatar>
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={notification.message || notification.title}
+                        secondary={`Just now • ${notification.type || 'System'}`}
+                        primaryTypographyProps={{ variant: 'body2', fontWeight: notification.read ? 'normal' : 'bold' }}
+                        secondaryTypographyProps={{ variant: 'caption' }}
+                      />
+                    </ListItem>
+                    <Divider />
+                  </React.Fragment>
+                ))}
+
+                {/* Regular activities */}
+                {(dashboardData?.recentActivities || []).slice(0, notifications.length > 0 ? 4 : 7).map((activity, index) => (
                   <React.Fragment key={activity.id}>
                     <ListItem>
                       <ListItemIcon>
                         <Avatar sx={{ width: 32, height: 32, bgcolor: '#DC143C' }}>
-                          {activity.icon}
+                          {activity.type === 'order' && <ShoppingCart />}
+                          {activity.type === 'payment' && <MonetizationOn />}
+                          {activity.type === 'inventory' && <Warning />}
+                          {activity.type === 'user' && <People />}
+                          {activity.type === 'lead' && <People />}
+                          {activity.type === 'invoice' && <AccountBalance />}
+                          {!['order', 'payment', 'inventory', 'user', 'lead', 'invoice'].includes(activity.type) && <Notifications />}
                         </Avatar>
                       </ListItemIcon>
                       <ListItemText
@@ -311,7 +432,7 @@ export default function EnhancedDashboard() {
                         secondaryTypographyProps={{ variant: 'caption' }}
                       />
                     </ListItem>
-                    {index < mockDashboardData.recentActivities.length - 1 && <Divider />}
+                    {index < (dashboardData?.recentActivities || []).slice(0, notifications.length > 0 ? 4 : 7).length - 1 && <Divider />}
                   </React.Fragment>
                 ))}
               </List>
@@ -327,7 +448,7 @@ export default function EnhancedDashboard() {
                 Alerts & Notifications
               </Typography>
               <Stack spacing={2}>
-                {mockDashboardData.alerts.map((alert) => (
+                {alerts.map((alert) => (
                   <Alert
                     key={alert.id}
                     severity={alert.type as any}

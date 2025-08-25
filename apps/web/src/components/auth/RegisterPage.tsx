@@ -309,7 +309,7 @@ export default function RegisterPage() {
               🏢 Daftar Akun Baru
             </Typography>
             <Typography variant="h6" color="text.secondary" gutterBottom>
-              Bergabung dengan Platform ERP Terdepan
+              Bergabung dengan Platform Tech-Development Terdepan
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Kelola bisnis Anda dengan sistem terintegrasi

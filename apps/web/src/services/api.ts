@@ -1,6 +1,6 @@
 import { TokenService, SessionService } from './tokenService'
 
-const API_BASE_URL = 'http://localhost:3001/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api'
 
 // API service class
 class ApiService {
@@ -10,7 +10,7 @@ class ApiService {
     this.baseURL = baseURL
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     // Ensure we have a valid token before making the request
     const hasValidToken = await SessionService.ensureValidToken()
 
@@ -48,6 +48,11 @@ class ApiService {
 
       return await response.json()
     } catch (error) {
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        console.warn('Backend server is not available. Running in offline mode.')
+        // Return mock data or handle gracefully
+        throw new Error('Backend server is not available. Please check if the server is running.')
+      }
       console.error('API request failed:', error)
       throw error
     }
@@ -120,6 +125,14 @@ class ApiService {
   // Dashboard endpoints
   async getDashboardOverview() {
     return this.request('/dashboard/overview')
+  }
+
+  async getDashboardSalesPerformance() {
+    return this.request('/dashboard/sales-performance')
+  }
+
+  async getDashboardActivities() {
+    return this.request('/dashboard/activities')
   }
 
   async getSalesPerformance() {

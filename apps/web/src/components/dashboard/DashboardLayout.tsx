@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { usePermissions } from '../../hooks/usePermissions'
-import PermissionGuard from '../auth/PermissionGuard'
+
 import SessionInfo from '../auth/SessionInfo'
+import NotificationCenter from '../common/NotificationCenter'
 import {
   Box,
   Drawer,
@@ -37,7 +38,35 @@ import {
   MonetizationOn,
   ShoppingCart,
   TrendingUp,
-  LocalShipping
+  LocalShipping,
+  AdminPanelSettings,
+  Security,
+  History,
+  Api,
+  ContactPhone,
+  ShowChart,
+  RequestQuote,
+  Receipt,
+  LocalOffer,
+  Assignment,
+  Warehouse,
+  SwapHoriz,
+  QrCodeScanner,
+  Engineering,
+  Schedule,
+  VerifiedUser,
+  Handyman,
+  AccessTime,
+  BeachAccess,
+  Payment,
+  AccountBalance,
+  TaxiAlert,
+  BarChart,
+  Build,
+  Help,
+  SupportAgent,
+  ExpandLess,
+  ExpandMore
 } from '@mui/icons-material'
 
 const drawerWidth = 280
@@ -48,59 +77,121 @@ interface DashboardLayoutProps {
 
 const menuCategories = [
   {
-    title: 'Analitik ERP',
+    title: 'Dashboard',
     items: [
       { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard', active: true },
-      { text: 'Laporan Keuangan', icon: <Assessment />, path: '/reports', active: true },
     ]
   },
   {
-    title: 'Manajemen SDM',
+    title: 'Administrasi',
     items: [
-      { text: 'Karyawan', icon: <People />, path: '/dashboard/hr', active: true },
-      { text: 'Payroll', icon: <MonetizationOn />, path: '/dashboard/hr/payroll', active: false },
-    ]
-  },
-  {
-    title: 'Manajemen Produksi',
-    items: [
-      { text: 'Manufacturing', icon: <Settings />, path: '/dashboard/orders', active: true },
-      { text: 'Quality Control', icon: <Assessment />, path: '/dashboard/quality', active: false },
-    ]
-  },
-  {
-    title: 'Akuntansi & Keuangan',
-    items: [
-      { text: 'Akuntansi', icon: <MonetizationOn />, path: '/dashboard/finance', active: true, highlight: true },
-      { text: 'Laporan Keuangan', icon: <Assessment />, path: '/dashboard/finance/reports', active: false },
-    ]
-  },
-  {
-    title: 'e-Procurement',
-    items: [
-      { text: 'Pembelian', icon: <LocalShipping />, path: '/dashboard/procurement', active: true, highlight: true },
-      { text: 'Vendor Management', icon: <Business />, path: '/dashboard/vendors', active: false },
+      { text: 'Pengguna & Role', icon: <AdminPanelSettings />, path: '/admin/users', active: true },
+      { text: 'Hak Akses', icon: <Security />, path: '/admin/roles', active: true },
+      { text: 'Audit Log', icon: <History />, path: '/admin/audit', active: true },
+      { text: 'Pengaturan Sistem', icon: <Settings />, path: '/admin/settings', active: true },
+      { text: 'Integrasi & API', icon: <Api />, path: '/admin/integrations', active: true },
     ]
   },
   {
     title: 'CRM & Sales',
     items: [
-      { text: 'CRM & Sales', icon: <Business />, path: '/dashboard/crm', active: true, highlight: true },
-      { text: 'Sales Pipeline', icon: <TrendingUp />, path: '/dashboard/sales', active: false },
+      { text: 'Leads', icon: <ContactPhone />, path: '/crm/leads', active: true, highlight: true },
+      { text: 'Kontak & Perusahaan', icon: <Business />, path: '/crm/contacts', active: true, highlight: true },
+      { text: 'Sales Pipeline', icon: <ShowChart />, path: '/crm/pipeline', active: true },
+      { text: 'Penawaran', icon: <RequestQuote />, path: '/sales/quotes', active: true },
+      { text: 'Sales Order', icon: <Receipt />, path: '/sales/orders', active: true },
+      { text: 'Delivery Order', icon: <LocalShipping />, path: '/sales/deliveries', active: true },
+      { text: 'Invoice Penjualan', icon: <Payment />, path: '/sales/invoices', active: true },
+      { text: 'Retur Penjualan', icon: <Assignment />, path: '/sales/returns', active: true },
+      { text: 'Harga & Promo', icon: <LocalOffer />, path: '/sales/pricing', active: true },
+    ]
+  },
+  {
+    title: 'e-Procurement',
+    items: [
+      { text: 'Permintaan Pembelian', icon: <Assignment />, path: '/procurement/requests', active: true, highlight: true },
+      { text: 'RFQ/Tender', icon: <RequestQuote />, path: '/procurement/rfq', active: true },
+      { text: 'Purchase Order', icon: <ShoppingCart />, path: '/procurement/po', active: true },
+      { text: 'Penerimaan Barang', icon: <Warehouse />, path: '/procurement/gr', active: true },
+      { text: 'Invoice Pembelian', icon: <Receipt />, path: '/procurement/invoices', active: true },
+      { text: 'Retur Pembelian', icon: <Assignment />, path: '/procurement/returns', active: true },
+      { text: 'Vendor Management', icon: <Business />, path: '/procurement/vendors', active: true },
     ]
   },
   {
     title: 'Manajemen Inventaris',
     items: [
-      { text: 'Inventory', icon: <Inventory />, path: '/dashboard/inventory', active: true, highlight: true },
-      { text: 'Stock Management', icon: <Inventory />, path: '/dashboard/stock', active: false },
+      { text: 'Master Item', icon: <Inventory />, path: '/inventory/items', active: true, highlight: true },
+      { text: 'Kartu Stok & Mutasi', icon: <Assessment />, path: '/inventory/ledger', active: true },
+      { text: 'Stock Management', icon: <QrCodeScanner />, path: '/inventory/stock', active: true },
+      { text: 'Transfer & Adjustment', icon: <SwapHoriz />, path: '/inventory/movements', active: true },
+      { text: 'Stock Opname', icon: <Assignment />, path: '/inventory/opname', active: true },
+      { text: 'Gudang', icon: <Warehouse />, path: '/inventory/warehouses', active: true },
     ]
   },
   {
     title: 'Trading & Distribution',
     items: [
-      { text: 'Orders', icon: <ShoppingCart />, path: '/dashboard/orders', active: true },
-      { text: 'Distribution', icon: <LocalShipping />, path: '/dashboard/distribution', active: false },
+      { text: 'Orders', icon: <ShoppingCart />, path: '/fulfillment/orders', active: true },
+      { text: 'Pengiriman', icon: <LocalShipping />, path: '/fulfillment/shipments', active: true },
+      { text: 'Rute & Scheduling', icon: <Schedule />, path: '/fulfillment/routes', active: false },
+    ]
+  },
+  {
+    title: 'Manufaktur',
+    items: [
+      { text: 'Bill of Materials', icon: <Engineering />, path: '/mfg/bom', active: true },
+      { text: 'Routing & Work Center', icon: <Build />, path: '/mfg/routing', active: true },
+      { text: 'MPS/MRP', icon: <Schedule />, path: '/mfg/planning', active: true },
+      { text: 'Manufacturing Order', icon: <Assignment />, path: '/mfg/orders', active: true },
+      { text: 'Issue/Receive Material', icon: <SwapHoriz />, path: '/mfg/materials', active: true },
+      { text: 'Quality Control', icon: <VerifiedUser />, path: '/mfg/qc', active: true },
+    ]
+  },
+  {
+    title: 'Aset & Maintenance',
+    items: [
+      { text: 'Aset Tetap', icon: <AccountBalance />, path: '/fa/assets', active: true },
+      { text: 'Jadwal Depresiasi', icon: <Schedule />, path: '/fa/schedule', active: true },
+      { text: 'Maintenance', icon: <Handyman />, path: '/maint/workorders', active: true },
+    ]
+  },
+  {
+    title: 'SDM & Payroll',
+    items: [
+      { text: 'Data Karyawan', icon: <People />, path: '/hr/employees', active: true, highlight: true },
+      { text: 'Absensi & Shift', icon: <AccessTime />, path: '/hr/attendance', active: true },
+      { text: 'Cuti & Izin', icon: <BeachAccess />, path: '/hr/leave', active: true },
+      { text: 'Payroll', icon: <MonetizationOn />, path: '/hr/payroll', active: true },
+      { text: 'Rekrutmen', icon: <People />, path: '/hr/recruitment', active: false },
+      { text: 'Kinerja/OKR', icon: <Assessment />, path: '/hr/performance', active: false },
+    ]
+  },
+  {
+    title: 'Keuangan & Akuntansi',
+    items: [
+      { text: 'Kas & Bank', icon: <AccountBalance />, path: '/fin/cashbank', active: true, highlight: true },
+      { text: 'Piutang (AR)', icon: <TrendingUp />, path: '/fin/ar', active: true },
+      { text: 'Hutang (AP)', icon: <TrendingUp />, path: '/fin/ap', active: true },
+      { text: 'Jurnal Umum', icon: <Assessment />, path: '/fin/gl', active: true },
+      { text: 'Periode & Closing', icon: <Schedule />, path: '/fin/periods', active: true },
+      { text: 'Pajak', icon: <TaxiAlert />, path: '/fin/tax', active: true },
+      { text: 'Laporan Keuangan', icon: <BarChart />, path: '/fin/reports', active: true },
+    ]
+  },
+  {
+    title: 'BI & Laporan',
+    items: [
+      { text: 'Report Builder', icon: <Build />, path: '/bi/builder', active: true },
+      { text: 'Dashboard KPI', icon: <Dashboard />, path: '/bi/dashboards', active: true },
+      { text: 'Ekspor & Data Hub', icon: <Assessment />, path: '/bi/export', active: true },
+    ]
+  },
+  {
+    title: 'Bantuan & Dokumen',
+    items: [
+      { text: 'SOP & Knowledge Base', icon: <Help />, path: '/help/kb', active: true },
+      { text: 'Tiket/Helpdesk', icon: <SupportAgent />, path: '/help/tickets', active: false },
     ]
   }
 ]
@@ -108,49 +199,13 @@ const menuCategories = [
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
+
   const navigate = useNavigate()
   const location = useLocation()
   const { logout, user } = useAuth()
   const { getAccessibleModules, canAccessModule } = usePermissions()
 
-  // Sample notifications data
-  const notifications = [
-    {
-      id: 1,
-      title: 'New Order Received',
-      message: 'Order #TXN-003 from PT Teknologi Maju',
-      time: '5 minutes ago',
-      type: 'order',
-      unread: true
-    },
-    {
-      id: 2,
-      title: 'Low Stock Alert',
-      message: 'Product "Laptop Dell" stock is running low',
-      time: '1 hour ago',
-      type: 'inventory',
-      unread: true
-    },
-    {
-      id: 3,
-      title: 'Payment Received',
-      message: 'Payment of Rp 2,500,000 received',
-      time: '2 hours ago',
-      type: 'payment',
-      unread: false
-    },
-    {
-      id: 4,
-      title: 'New Employee Added',
-      message: 'Welcome Ahmad Rizki to the team',
-      time: '1 day ago',
-      type: 'hr',
-      unread: false
-    }
-  ]
 
-  const unreadCount = notifications.filter(n => n.unread).length
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen)
@@ -170,23 +225,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     handleProfileMenuClose()
   }
 
-  const handleNotificationClick = (event: React.MouseEvent<HTMLElement>) => {
-    setNotificationAnchor(event.currentTarget)
-  }
 
-  const handleNotificationClose = () => {
-    setNotificationAnchor(null)
-  }
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'order': return '🛒'
-      case 'inventory': return '📦'
-      case 'payment': return '💰'
-      case 'hr': return '👥'
-      default: return '🔔'
-    }
-  }
 
   const drawer = (
     <Box>
@@ -373,15 +412,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </Typography>
 
           {/* Notifications */}
-          <IconButton
-            color="inherit"
-            sx={{ mr: 1 }}
-            onClick={handleNotificationClick}
-          >
-            <Badge badgeContent={unreadCount} color="error">
-              <Notifications />
-            </Badge>
-          </IconButton>
+          <NotificationCenter />
 
           {/* Profile Menu */}
           <IconButton
@@ -398,97 +429,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </Toolbar>
       </AppBar>
 
-      {/* Notification Menu */}
-      <Menu
-        anchorEl={notificationAnchor}
-        open={Boolean(notificationAnchor)}
-        onClose={handleNotificationClose}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            overflow: 'visible',
-            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-            mt: 1.5,
-            minWidth: 350,
-            maxHeight: 400,
-            '&:before': {
-              content: '""',
-              display: 'block',
-              position: 'absolute',
-              top: 0,
-              right: 14,
-              width: 10,
-              height: 10,
-              bgcolor: 'background.paper',
-              transform: 'translateY(-50%) rotate(45deg)',
-              zIndex: 0,
-            },
-          },
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-      >
-        <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
-          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-            Notifications
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            You have {unreadCount} unread notifications
-          </Typography>
-        </Box>
 
-        {notifications.map((notification) => (
-          <MenuItem
-            key={notification.id}
-            onClick={handleNotificationClose}
-            sx={{
-              borderLeft: notification.unread ? '4px solid #DC143C' : '4px solid transparent',
-              backgroundColor: notification.unread ? 'rgba(220, 20, 60, 0.02)' : 'transparent',
-              '&:hover': {
-                backgroundColor: notification.unread ? 'rgba(220, 20, 60, 0.08)' : 'rgba(0,0,0,0.04)'
-              }
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', width: '100%' }}>
-              <Box sx={{ mr: 2, fontSize: '1.5rem' }}>
-                {getNotificationIcon(notification.type)}
-              </Box>
-              <Box sx={{ flexGrow: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
-                    {notification.title}
-                  </Typography>
-                  {notification.unread && (
-                    <Chip
-                      size="small"
-                      label="New"
-                      sx={{
-                        backgroundColor: '#DC143C',
-                        color: 'white',
-                        height: 20,
-                        fontSize: '0.7rem'
-                      }}
-                    />
-                  )}
-                </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                  {notification.message}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {notification.time}
-                </Typography>
-              </Box>
-            </Box>
-          </MenuItem>
-        ))}
-
-        <Divider />
-        <MenuItem onClick={handleNotificationClose} sx={{ justifyContent: 'center' }}>
-          <Typography variant="body2" sx={{ color: '#DC143C', fontWeight: 'medium' }}>
-            View All Notifications
-          </Typography>
-        </MenuItem>
-      </Menu>
 
       {/* Profile Menu */}
       <Menu
